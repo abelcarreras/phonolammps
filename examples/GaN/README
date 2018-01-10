@@ -1,0 +1,3 @@
+# Example of usage
+
+phonolammps in.lammps -c POSCAR_unitcell -p

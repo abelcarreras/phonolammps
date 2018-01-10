@@ -10,8 +10,6 @@ from phonolammps.phonopy_link import ForceConstants, obtain_phonon_dispersion_ba
 from phonolammps.iofile import read_from_file_structure_poscar
 
 parser = argparse.ArgumentParser(description='rfc_calc options')
-parser.add_argument('input_file', metavar='data_file', type=str,
-                    help='input file containing structure related data')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
                     help='input file containing lammps script')
@@ -25,23 +23,31 @@ parser.add_argument('--dim', metavar='file', type=int, nargs=3,  default=[1, 1, 
 parser.add_argument('-p', action='store_true',
                    help='plot phonon band structure')
 
+parser.add_argument('-c', '--cell', metavar='file', type=str, default='POSCAR',
+                    help='POSCAR type file containing the unit cell')
+
+parser.add_argument('-pa', '--primitive_axis', type=float, nargs=9,  default=[1, 0, 0,
+                                                                              0, 1, 0,
+                                                                              0, 0, 1],
+                    help='primitive axis')
 
 args = parser.parse_args()
 
 
-def get_force_constants(structure, supercell_matrix, displacement_distance=0.01):
+def get_force_constants(structure, input_parameters, displacement_distance=0.01):
     """
     calculate the force constants with phonopy using lammps to calculate forces
 
     :param structure:  dynaphopy type Structure object
-    :param supercell_matrix: symmetric matrix that defines the supercell used to calculate the force_constants
+    :param input_parameters: dictionary that contains input parameters for phonopy
     :param displacement_distance: displacement distance in Angstroms
     :return: data_sets phonopy dictionary (without forces) and list of numpy arrays containing
     :return: dynaphopy ForceConstants type object
     """
 
     phonon = get_phonon(structure, setup_forces=False,
-                        super_cell_phonon=supercell_matrix)
+                        super_cell_phonon=input_parameters['supercell'],
+                        primitive_axis=input_parameters['primitive'])
     phonon.get_displacement_dataset()
     phonon.generate_displacements(distance=displacement_distance)
     cells_with_disp = phonon.get_supercells_with_displacements()
@@ -53,15 +59,14 @@ def get_force_constants(structure, supercell_matrix, displacement_distance=0.01)
     # Get forces from lammps
     for i, cell in enumerate(cells_with_disp):
         print ('displacement {} / {}'.format(i+1, len(cells_with_disp)))
-        forces = get_lammps_forces(structure, cell, supercell_matrix, args.lammps_input_file)
+        forces = get_lammps_forces(structure, cell, input_parameters['supercell'], args.lammps_input_file)
         data_sets['first_atoms'][i]['forces'] = forces
 
     phonon.set_displacement_dataset(data_sets)
     phonon.produce_force_constants()
     force_constants = phonon.get_force_constants()
 
-    return ForceConstants(force_constants, supercell=supercell_matrix)
-
+    return ForceConstants(force_constants, supercell=input_parameters['supercell'])
 
 def get_lammps_forces(structure, cell_with_disp, supercell_matrix, input_file):
     """
@@ -106,6 +111,31 @@ def get_lammps_forces(structure, cell_with_disp, supercell_matrix, input_file):
     return forces
 
 
+def get_path_using_seek_path(structure):
+    try:
+        import seekpath
+
+        cell = structure.get_cell()
+        positions = structure.get_scaled_positions()
+        numbers = np.unique(structure.get_chemical_symbols(), return_inverse=True)[1]
+        structure = (cell, positions, numbers)
+        path_data = seekpath.get_path(structure)
+
+        labels = path_data['point_coords']
+
+        band_ranges = []
+        for set in path_data['path']:
+            band_ranges.append([labels[set[0]], labels[set[1]]])
+
+        return {'ranges': band_ranges,
+                'labels': path_data['path']}
+    except ImportError:
+        print ('Seekpath not installed. Autopath is deactivated')
+        band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]])
+        return {'ranges': band_ranges,
+                'labels': [['GAMMA', '1/2,0,1/2']]}
+
+
 def plot_phonon_dispersion_bands(structure, force_constants):
     """
     Plot phonon band structure using seekpath automatic k-path
@@ -117,7 +147,7 @@ def plot_phonon_dispersion_bands(structure, force_constants):
 
     import matplotlib.pyplot as plt
 
-    bands_and_labels = structure.get_path_using_seek_path()
+    bands_and_labels = get_path_using_seek_path(structure)
     _bands = obtain_phonon_dispersion_bands(structure,
                                             bands_and_labels['ranges'],
                                             force_constants)
@@ -159,13 +189,15 @@ def plot_phonon_dispersion_bands(structure, force_constants):
 
 
 # Get data from input file & process parameters
-input_parameters = {'structure_file_name': 'POSCAR',
-                    'supercell': np.diag(args.dim)}
+input_parameters = {'structure_file_name': args.cell,
+                    'supercell': np.diag(args.dim),
+                    'primitive': np.array(args.primitive_axis).reshape((3, 3))}
+
 structure = read_from_file_structure_poscar(input_parameters['structure_file_name'])
 
 # Calculate force constants
 force_constants = get_force_constants(structure,
-                                      input_parameters['supercell'],
+                                      input_parameters,
                                       displacement_distance=0.01)
 
 # Plot data if requested

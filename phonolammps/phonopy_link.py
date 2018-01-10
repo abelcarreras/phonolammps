@@ -17,10 +17,14 @@ class ForceConstants:
         return self._supercell
 
 
-def get_phonon(structure, NAC=False, setup_forces=True, super_cell_phonon=np.identity(3)):
+def get_phonon(structure,
+               NAC=False,
+               setup_forces=True,
+               super_cell_phonon=np.identity(3),
+               primitive_axis=np.identity(3)):
 
     phonon = Phonopy(structure, super_cell_phonon,
-                     primitive_matrix=structure.get_primitive_matrix(),
+                     primitive_matrix=primitive_axis,
                      symprec=1e-5)
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
