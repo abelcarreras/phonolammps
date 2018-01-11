@@ -1,0 +1,16 @@
+# GaN molecular dynamics using Tersoff potential
+
+units		metal
+
+boundary	p p p
+
+box tilt large
+
+atom_style      atomic
+
+read_data       data.gan
+
+pair_style      tersoff
+pair_coeff      * * GaN.tersoff  Ga N
+
+neighbor	0.3 bin
