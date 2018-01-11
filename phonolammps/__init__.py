@@ -8,6 +8,7 @@ from phonolammps.arrange import get_correct_arrangement
 from phonolammps.phonopy_link import ForceConstants, obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import read_from_file_structure_poscar
 
+
 class Phonolammps:
     def __init__(self,
                  structure,
@@ -88,7 +89,7 @@ class Phonolammps:
         """
         Obtain the path in reciprocal space to plot the phonon band structure
 
-        :return: dictonary with list of q-points and labels of high symmetry points
+        :return: dictionary with list of q-points and labels of high symmetry points
         """
 
         try:
