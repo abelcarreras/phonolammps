@@ -1,9 +1,9 @@
-__version__ = '0.1a'
+__version__ = '0.2a'
 
 import numpy as np
 
 from lammps import lammps
-from phonopy.file_IO import write_FORCE_CONSTANTS
+from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5
 from phonolammps.arrange import get_correct_arrangement
 from phonolammps.phonopy_link import ForceConstants, obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import read_from_file_structure_poscar
@@ -15,9 +15,12 @@ class Phonolammps:
                  supercell_matrix=np.identity(3),
                  primitive_matrix=np.identity(3),
                  displacement_distance=0.01,
-                 show_log=False):
+                 show_log=False,
+                 show_progress=False):
         """
-        :param structure:  dynaphopy type Structure object
+        :param structure:  PhonopyAtoms type object (see phonopy)
+        :param lammps_input_file:  LAMMPS input file name (see example)
+
         :param displacement_distance: displacement distance in Angstroms
         :return: data_sets phonopy dictionary (without forces) and list of numpy arrays containing
         """
@@ -29,6 +32,7 @@ class Phonolammps:
         self._primitive_matrix = primitive_matrix
         self._displacement_distance = displacement_distance
         self._show_log = show_log
+        self._show_progress = show_progress
 
         self._force_constants = None
 
@@ -132,7 +136,8 @@ class Phonolammps:
 
             # Get forces from lammps
             for i, cell in enumerate(cells_with_disp):
-                print ('displacement {} / {}'.format(i+1, len(cells_with_disp)))
+                if self._show_progress:
+                    print ('displacement {} / {}'.format(i+1, len(cells_with_disp)))
                 forces = self.get_lammps_forces(cell)
                 data_sets['first_atoms'][i]['forces'] = forces
 
@@ -140,7 +145,8 @@ class Phonolammps:
             phonon.produce_force_constants()
             force_constants = phonon.get_force_constants()
 
-            self._force_constants =  ForceConstants(force_constants, supercell=self._supercell_matrix)
+            self._force_constants = ForceConstants(force_constants,
+                                                   supercell=self._supercell_matrix)
 
         return self._force_constants
 
@@ -152,7 +158,8 @@ class Phonolammps:
         import matplotlib.pyplot as plt
 
         def replace_list(text_string):
-            substitutions = {'GAMMA': u'$\Gamma$'}
+            substitutions = {'GAMMA': u'$\Gamma$',
+                             }
 
             for item in substitutions.iteritems():
                 text_string = text_string.replace(item[0], item[1])
@@ -186,26 +193,29 @@ class Phonolammps:
             x_labels = []
             for i, freq in enumerate(_bands[1]):
                 if labels[i][0] == labels[i - 1][1]:
-                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                    labels_e.append(replace_list(labels[i][0]))
                 else:
                     labels_e.append(
-                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
-                                                                                                       '\Gamma') + '$')
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
                 x_labels.append(_bands[1][i][0])
             x_labels.append(_bands[1][-1][-1])
-            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
-            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
 
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
 
-    def write_force_constants(self, filename='FORCE_CONSTANTS'):
+    def write_force_constants(self, filename='FORCE_CONSTANTS', hdf5=False):
         """
         Write the force constants in a file in phonopy plain text format
-        :param filename:
+
+        :param filename: Force constants filename
         :return:
         """
+
         force_constants = self.get_force_constants()
-        print('writing force constants')
-        write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
+        if hdf5:
+            write_force_constants_to_hdf5(force_constants.get_array(), filename=filename)
+        else:
+            write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
