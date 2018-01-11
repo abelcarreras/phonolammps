@@ -30,7 +30,7 @@ Installation instructions
 # python setup.py install --user --prefix=
 ```
 
-2) From pip repository
+2) From PyPI repository
 
 ```
 # pip install phonoLAMMPS --user
