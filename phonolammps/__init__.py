@@ -124,8 +124,8 @@ class Phonolammps:
         if self._force_constants is None:
             phonon = get_phonon(self._structure,
                                 setup_forces=False,
-                                super_cell_phonon=self._supercell_matrix,
-                                primitive_axis=self._primitive_matrix)
+                                super_cell_phonon=self._supercell_matrix)
+
             phonon.get_displacement_dataset()
             phonon.generate_displacements(distance=self._displacement_distance)
             cells_with_disp = phonon.get_supercells_with_displacements()
