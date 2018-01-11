@@ -24,7 +24,7 @@ parser.add_argument('-p', action='store_true',
 parser.add_argument('-c', '--cell', metavar='file', type=str, default='POSCAR',
                     help='POSCAR type file containing the unit cell')
 
-parser.add_argument('-pa', '--primitive_axis', type=float, nargs=9,  default=[1, 0, 0,
+parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,  default=[1, 0, 0,
                                                                               0, 1, 0,
                                                                               0, 0, 1],
                     help='primitive axis')

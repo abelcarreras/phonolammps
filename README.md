@@ -26,7 +26,7 @@ Installation instructions
 --------------------------
 
 ```
-# python setup.py install --user
+# python setup.py install --user --prefix=
 ```
 
 Command line interface
