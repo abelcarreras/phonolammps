@@ -14,7 +14,13 @@ these two files should be written carefully by the user.
 
 Run this to generate a FORCE_CONSTANTS file and show a preview of the phonon band structure.
 Use --dim to change the size of the supercells used to calculate the force constants.
+-c defines the name of the POSCAR type file containing the crystal unit cell.
+-p activates the phonon band structure preview,
 --pa can be used to define the primitive axis in a same manner as phonopy (this option only
-affects the phonon band structure preview)
+affects the phonon band structure preview):
 
 # phonolammps in.lammps -c POSCAR_unitcell --dim 3 3 3 -p
+
+or
+
+# phonolammps in.lammps_data -c POSCAR_unitcell --dim 3 3 3 -p
