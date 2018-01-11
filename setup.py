@@ -7,12 +7,12 @@ except ImportError:
     use_setuptools = False
     print("distutils is used.")
 
+
 def get_version_number():
     for l in open('phonolammps/__init__.py', 'r').readlines():
         if not(l.find('__version__')):
             exec(l, globals())
             return __version__
-
 
 setup(name='phonoLAMMPS',
       version=get_version_number(),
@@ -22,6 +22,6 @@ setup(name='phonoLAMMPS',
       author_email='abelcarreras83@gmail.com',
       packages=['phonolammps'],
       scripts=['scripts/phonolammps'],
-      requires=['phonopy', 'numpy', 'matplotlib', 'lammps'],
+      requires=['phonopy', 'numpy'],
       license='MIT License'
       )
