@@ -51,10 +51,12 @@ def get_phonon(structure,
 
 
 def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants,
-                                   NAC=False, band_resolution=30, band_connection=False):
+                                   NAC=False, band_resolution=30, band_connection=False,
+                                   primitive_matrix=np.identity(3)):
 
     phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
-                        super_cell_phonon=force_constants.get_supercell())
+                        super_cell_phonon=force_constants.get_supercell(),
+                        primitive_axis=primitive_matrix)
 
     phonon.set_force_constants(force_constants.get_array())
 

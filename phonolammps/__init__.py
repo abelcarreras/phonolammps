@@ -170,7 +170,8 @@ class Phonolammps:
 
         _bands = obtain_phonon_dispersion_bands(self._structure,
                                                 bands_and_labels['ranges'],
-                                                force_constants)
+                                                force_constants,
+                                                primitive_matrix=self._primitive_matrix)
 
         for i, freq in enumerate(_bands[1]):
             plt.plot(_bands[1][i], _bands[2][i], color='r')
