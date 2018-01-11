@@ -28,6 +28,8 @@ Installation instructions
 ```
 # python setup.py install --user --prefix=
 ```
+For convenience, you may copy (or link) the files inside scripts folder 
+to a location included in $PATH environment variable
 
 Command line interface
 ----------------------
