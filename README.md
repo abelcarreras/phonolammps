@@ -25,11 +25,19 @@ Optional requirements
 Installation instructions
 --------------------------
 
+1) From source code
 ```
 # python setup.py install --user --prefix=
 ```
-For convenience, you may copy (or link) the files inside scripts folder 
-to a location included in $PATH environment variable
+
+2) From pip repository
+
+```
+# pip install phonoLAMMPS --user
+```
+
+For convenience, you may want to copy (or link) the files inside scripts
+folder to a location included in $PATH environment variable
 
 Command line interface
 ----------------------
