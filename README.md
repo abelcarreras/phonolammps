@@ -44,8 +44,8 @@ Command line interface
 ----------------------
 phonoLAMMPS has a similar interface to phonopy to allow to easily
 calculate the 2nd order force constants and generate the unitcell
-from a LAMMPS input file in phonopy/VASP format. Ready to use
-for you calculations with phonopy.
+from a LAMMPS input file in phonopy/VASP format. All outputs 
+are ready to use in phonopy calculations.
 Also allows features a quick preview of the phonon 
 band structure (requires seekpath). 
 
