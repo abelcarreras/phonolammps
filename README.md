@@ -84,3 +84,11 @@ phonon.plot_total_DOS().show()
 phonon.set_thermal_properties()
 phonon.plot_thermal_properties().show()
 ```
+
+Contact info
+---------------------------------------------------------
+Abel Carreras
+<br>abelcarreras83@gmail.com
+
+Department of Materials Science and Engineering
+<br>Kyoto University
