@@ -5,14 +5,11 @@ boundary	p p p
 
 box tilt large
 
-
 atom_style      atomic
 
 read_data       data.si
 
 pair_style      tersoff
 pair_coeff      * * SiCGe.tersoff  Si(C)
-
-#variable        t equal 301
 
 neighbor	0.3 bin
