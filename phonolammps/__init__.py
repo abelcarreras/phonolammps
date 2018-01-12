@@ -225,6 +225,17 @@ class Phonolammps:
     def get_supercell_matrix(self):
         return self._supercell_matrix
 
+    def get_bands(self, band_resolution=30):
+        ranges = self.get_path_using_seek_path()['ranges']
+        bands =[]
+        for q_start, q_end in ranges:
+            band = []
+            for i in range(band_resolution+1):
+                band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
+            bands.append(band)
+
+        return bands
+
     def write_unitcell_POSCAR(self, filename='POSCAR'):
         """
         Write unit cell in VASP POSCAR type file
