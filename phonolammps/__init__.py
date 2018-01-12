@@ -1,4 +1,4 @@
-__version__ = '0.3'
+__version__ = '0.4'
 
 import numpy as np
 
@@ -6,12 +6,11 @@ from lammps import lammps
 from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5
 from phonolammps.arrange import get_correct_arrangement
 from phonolammps.phonopy_link import ForceConstants, obtain_phonon_dispersion_bands, get_phonon
-from phonolammps.iofile import read_from_file_structure_poscar
+from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps, generate_VASP_structure
 
 
 class Phonolammps:
     def __init__(self,
-                 structure,
                  lammps_input_file,
                  supercell_matrix=np.identity(3),
                  primitive_matrix=np.identity(3),
@@ -19,14 +18,13 @@ class Phonolammps:
                  show_log=False,
                  show_progress=False):
         """
-        :param structure:  PhonopyAtoms type object (see phonopy)
         :param lammps_input_file:  LAMMPS input file name (see example)
 
         :param displacement_distance: displacement distance in Angstroms
         :return: data_sets phonopy dictionary (without forces) and list of numpy arrays containing
         """
 
-        self._structure = structure
+        self._structure = get_structure_from_lammps(lammps_input_file)
         self._lammps_input_file = lammps_input_file
 
         self._supercell_matrix = supercell_matrix
@@ -222,3 +220,18 @@ class Phonolammps:
             write_force_constants_to_hdf5(force_constants.get_array(), filename=filename)
         else:
             write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
+
+    def get_unitcell(self):
+        return self._structure
+
+    def write_unitcell_POSCAR(self, filename='POSCAR'):
+        """
+        Write unit cell in VASP POSCAR type file
+
+        :param filename:
+        :return:
+        """
+        poscar_txt = generate_VASP_structure(self._structure)
+
+        with open(filename, mode='w') as f:
+            f.write(poscar_txt)

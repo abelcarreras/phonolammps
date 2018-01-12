@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 
 from phonolammps import Phonolammps
-from phonolammps.iofile import read_from_file_structure_poscar
+from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps
 
 
 parser = argparse.ArgumentParser(description='rfc_calc options')
@@ -21,32 +21,36 @@ parser.add_argument('--dim', metavar='file', type=int, nargs=3,  default=[1, 1, 
 parser.add_argument('-p', action='store_true',
                    help='plot phonon band structure')
 
-parser.add_argument('-c', '--cell', metavar='file', type=str, default='POSCAR',
-                    help='POSCAR type file containing the unit cell')
+parser.add_argument('-c', '--cell', metavar='file', type=str, default=None,
+                    help='generates a POSCAR type file containing the unit cell')
 
 parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,  default=[1, 0, 0,
-                                                                              0, 1, 0,
-                                                                              0, 0, 1],
+                                                                                           0, 1, 0,
+                                                                                           0, 0, 1],
                     help='primitive axis')
 
 parser.add_argument('--amplitude', type=str, default=0.01,
-                    help='Displacement distance [default: 0.01 angstrom]')
+                    help='displacement distance [default: 0.01 angstrom]')
+
+parser.add_argument('--log_show', action='store_true',
+                   help='show LAMMPS log on screen')
 
 
 args = parser.parse_args()
 
-structure = read_from_file_structure_poscar(args.cell)
-
-phlammps = Phonolammps(structure,
-                       args.lammps_input_file,
+phlammps = Phonolammps(args.lammps_input_file,
                        supercell_matrix=np.diag(args.dim),
                        primitive_matrix=np.array(args.primitive_axis).reshape((3, 3)),
                        displacement_distance=args.amplitude,
-                       show_log=False,
+                       show_log=args.log_show,
                        show_progress=True)
 
 if args.p:
     phlammps.plot_phonon_dispersion_bands()
+
+if args.cell is not None:
+    print ('writing POSCAR file: {}'.format(args.cell))
+    phlammps.write_unitcell_POSCAR(args.cell)
 
 print ('writing force constants')
 phlammps.write_force_constants(filename=args.o)
