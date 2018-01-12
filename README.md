@@ -69,7 +69,6 @@ phlammps = Phonolammps('in.lammps',
                        supercell_matrix=supercell_matrix)
 
 unitcell = phlammps.get_unitcell()
-
 force_constants = phlammps.get_force_constants().get_array()
 
 phonon = Phonopy(unitcell,
