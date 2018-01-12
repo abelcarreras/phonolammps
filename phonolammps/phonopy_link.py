@@ -50,15 +50,15 @@ def get_phonon(structure,
     return phonon
 
 
-def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants,
+def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants, supercell,
                                    NAC=False, band_resolution=30, band_connection=False,
                                    primitive_matrix=np.identity(3)):
 
     phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
-                        super_cell_phonon=force_constants.get_supercell(),
+                        super_cell_phonon=supercell,
                         primitive_axis=primitive_matrix)
 
-    phonon.set_force_constants(force_constants.get_array())
+    phonon.set_force_constants(force_constants)
 
     bands =[]
     for q_start, q_end in bands_ranges:

@@ -1,11 +1,11 @@
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 import numpy as np
 
 from lammps import lammps
 from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5
 from phonolammps.arrange import get_correct_arrangement
-from phonolammps.phonopy_link import ForceConstants, obtain_phonon_dispersion_bands, get_phonon
+from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps, generate_VASP_structure
 
 
@@ -143,10 +143,7 @@ class Phonolammps:
 
             phonon.set_displacement_dataset(data_sets)
             phonon.produce_force_constants()
-            force_constants = phonon.get_force_constants()
-
-            self._force_constants = ForceConstants(force_constants,
-                                                   supercell=self._supercell_matrix)
+            self._force_constants = phonon.get_force_constants()
 
         return self._force_constants
 
@@ -171,6 +168,7 @@ class Phonolammps:
         _bands = obtain_phonon_dispersion_bands(self._structure,
                                                 bands_and_labels['ranges'],
                                                 force_constants,
+                                                self._supercell_matrix,
                                                 primitive_matrix=self._primitive_matrix)
 
         for i, freq in enumerate(_bands[1]):
@@ -217,12 +215,15 @@ class Phonolammps:
 
         force_constants = self.get_force_constants()
         if hdf5:
-            write_force_constants_to_hdf5(force_constants.get_array(), filename=filename)
+            write_force_constants_to_hdf5(force_constants, filename=filename)
         else:
-            write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
+            write_FORCE_CONSTANTS(force_constants, filename=filename)
 
     def get_unitcell(self):
         return self._structure
+
+    def get_supercell_matrix(self):
+        return self._supercell_matrix
 
     def write_unitcell_POSCAR(self, filename='POSCAR'):
         """
