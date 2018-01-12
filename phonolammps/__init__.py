@@ -94,6 +94,7 @@ class Phonolammps:
 
         try:
             import seekpath
+
             structure = self._structure
             cell = structure.get_cell()
             positions = structure.get_scaled_positions()

@@ -5,6 +5,13 @@ from phonopy.structure.atoms import Atoms as PhonopyAtoms
 
 
 def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
+    """
+    Read crystal structure from a VASP POSCAR type file
+
+    :param file_name: POSCAR filename
+    :param number_of_dimensions: number of dimensions of the crystal structure
+    :return: PhonopyAtoms (phonopy) type object containing the crystal structure
+    """
     #Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
@@ -58,3 +65,39 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
     return PhonopyAtoms(symbols=atomic_types,
                         scaled_positions=scaled_positions,
                         cell=direct_cell)
+
+
+def get_structure_from_lammps(file_name, show_log=False):
+    """
+    Get the crystal structure from lammps input
+
+    :param file_name: LAMMPS input filename
+    :return: numpy array matrix with forces of atoms [Natoms x 3]
+    """
+
+    input_file = file_name
+
+    cmd_list = ['-log', 'none']
+    if not show_log:
+        cmd_list += ['-echo', 'none', '-screen', 'none']
+
+    lmp = lammps(cmdargs=cmd_list)
+
+    lmp.file(input_file)
+    lmp.command('run 0')
+
+    na = lmp.get_natoms()
+
+    positions = lmp.gather_atoms("x", 1, 3)
+    mass = lmp.gather_atoms("rmass", 1, 1)
+    type = lmp.gather_atoms("type", 1, 1)
+
+    positions = np.array([positions[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :]
+    mass = np.array([mass[i] for i in range(na)])
+    type = np.array([type[i] for i in range(na)])
+
+    lmp.close()
+    print mass
+    print type
+
+    return positions
