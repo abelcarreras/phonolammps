@@ -73,8 +73,9 @@ def get_correct_arrangement(reference, structure):
     template = np.array(template)
 
     if len(np.unique(template)) < len(template):
-        print ('template failed, auto-order will not be applied')
+        print ('Something wrong with crystal structure!\n'
+               'POSCAR & LAMMPS structure do not match')
         print ('unique: {} / {}'.format(len(np.unique(template)), len(template)))
-        return None
+        exit()
 
     return template
