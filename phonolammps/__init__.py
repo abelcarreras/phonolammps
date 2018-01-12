@@ -169,7 +169,8 @@ class Phonolammps:
                                                 bands_and_labels['ranges'],
                                                 force_constants,
                                                 self._supercell_matrix,
-                                                primitive_matrix=self._primitive_matrix)
+                                                primitive_matrix=self._primitive_matrix,
+                                                band_resolution=30)
 
         for i, freq in enumerate(_bands[1]):
             plt.plot(_bands[1][i], _bands[2][i], color='r')
@@ -225,7 +226,7 @@ class Phonolammps:
     def get_supercell_matrix(self):
         return self._supercell_matrix
 
-    def get_bands(self, band_resolution=30):
+    def get_seekpath_bands(self, band_resolution=30):
         ranges = self.get_path_using_seek_path()['ranges']
         bands =[]
         for q_start, q_end in ranges:
