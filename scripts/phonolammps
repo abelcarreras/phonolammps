@@ -2,9 +2,7 @@
 
 import numpy as np
 import argparse
-
 from phonolammps import Phonolammps
-from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps
 
 
 parser = argparse.ArgumentParser(description='rfc_calc options')
