@@ -1,3 +1,4 @@
+[![PyPI version](https://badge.fury.io/py/phonoLAMMPS.svg)](https://badge.fury.io/py/phonoLAMMPS)
 
 phonoLAMMPS
 ===========
