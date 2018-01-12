@@ -41,13 +41,14 @@ folder to a location included in $PATH environment variable
 
 Command line interface
 ----------------------
-phonoLAMMPS has a similar interface to phonopy to allow to quicky
-calculate the 2nd order force constants in a file format ready to 
-use with phonopy. Also allows features a quick preview of the phonon 
+phonoLAMMPS has a similar interface to phonopy to allow to easily
+obtain the 2nd order force constants and unitcell files in 
+phonopy/VASP format ready to use with phonopy. 
+Also allows features a quick preview of the phonon 
 band structure (requires seekpath). 
 
 ```
-# phonolammps in.lammps -c POSCAR_unitcell --dim 3 3 3 -p
+# phonolammps in.lammps --dim 3 3 3 -c POSCAR_unitcell -p
 ```
 
 Python API 
