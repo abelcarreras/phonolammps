@@ -42,8 +42,9 @@ folder to a location included in $PATH environment variable
 Command line interface
 ----------------------
 phonoLAMMPS has a similar interface to phonopy to allow to easily
-obtain the 2nd order force constants and unitcell files in 
-phonopy/VASP format ready to use with phonopy. 
+calculate the 2nd order force constants and generate the unitcell
+from a LAMMPS input file in phonopy/VASP format. Ready to use
+for you calculations with phonopy.
 Also allows features a quick preview of the phonon 
 band structure (requires seekpath). 
 
