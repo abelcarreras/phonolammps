@@ -11,5 +11,4 @@ phlammps.plot_phonon_dispersion_bands()
 
 force_constants = phlammps.get_force_constants()
 
-print force_constants.get_supercell()
-print force_constants.get_array()
+print force_constants
