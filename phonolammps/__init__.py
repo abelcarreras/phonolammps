@@ -158,7 +158,7 @@ class Phonolammps:
             substitutions = {'GAMMA': u'$\Gamma$',
                              }
 
-            for item in substitutions.iteritems():
+            for item in substitutions.items():
                 text_string = text_string.replace(item[0], item[1])
             return text_string
 

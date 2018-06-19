@@ -16,9 +16,9 @@ def diff_matrix(array_1, array_2, cell_size):
 
 def phonopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])/size[1]
-    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
-    k = i/(size[1]*size[0]*size[2])
+    y = np.mod(i, size[0]*size[1])//size[1]
+    z = np.mod(i, size[0]*size[1]*size[2])//(size[1]*size[0])
+    k = i//(size[1]*size[0]*size[2])
 
     return np.array([x, y, z, k])
 
@@ -67,7 +67,7 @@ def get_correct_arrangement(reference, structure):
 
         comparison_cell = np.array([lattice_points_coordinates]*number_of_supercell_atoms)
         diference = np.linalg.norm(diff_matrix(original_conf, comparison_cell, supercell_dim), axis=1)
-        template.append(np.argmin(diference) + atom_unit_cell_index[i]*number_of_supercell_atoms/number_of_cell_atoms)
+        template.append(np.argmin(diference) + atom_unit_cell_index[i]*number_of_supercell_atoms//number_of_cell_atoms)
 
         lp_coordinates.append(lattice_points_coordinates)
     template = np.array(template)
