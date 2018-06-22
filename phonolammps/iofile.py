@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from phonopy.structure.atoms import Atoms as PhonopyAtoms
+from phonopy.structure.atoms import PhonopyAtoms
 from lammps import lammps
 
 
@@ -114,7 +114,9 @@ def get_structure_from_lammps(file_name, show_log=False):
                            [0,   0,  zhi-zlo]]).T
 
     positions = lmp.gather_atoms("x", 1, 3)
-    type_mass = lmp.gather_atoms("mass", 1, 1)
+#    type_mass = lmp.gather_atoms("mass", 1, 1)
+    type_mass = lmp.extract_atom("mass", 2)
+
     type = lmp.gather_atoms("type", 0, 1)
 
     positions = np.array([positions[i] for i in range(na * 3)]).reshape((na, 3))
