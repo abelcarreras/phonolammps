@@ -19,9 +19,11 @@ class Phonolammps:
                  show_progress=False):
         """
         :param lammps_input_file:  LAMMPS input file name (see example)
-
+        :param supercell_matrix:  3x3 matrix supercell
+        :param primitive cell:  3x3 matrix primitive cell
         :param displacement_distance: displacement distance in Angstroms
-        :return: data_sets phonopy dictionary (without forces) and list of numpy arrays containing
+        :param show_log: Set true to display lammps log info
+        :param show_progress: Set true to display progress of calculation
         """
 
         self._structure = get_structure_from_lammps(lammps_input_file)
@@ -42,19 +44,14 @@ class Phonolammps:
         :return: numpy array matrix with forces of atoms [Natoms x 3]
         """
 
-        structure = self._structure
-        supercell_matrix = self._supercell_matrix
-        input_file = self._lammps_input_file
+        supercell_sizes = np.diag(self._supercell_matrix)
 
         cmd_list = ['-log', 'none']
         if not self._show_log:
             cmd_list += ['-echo', 'none', '-screen', 'none']
 
         lmp = lammps(cmdargs=cmd_list)
-
-        supercell_sizes = np.diag(supercell_matrix)
-
-        lmp.file(input_file)
+        lmp.file(self._lammps_input_file)
         lmp.command('replicate {} {} {}'.format(*supercell_sizes))
         lmp.command('run 0')
 
@@ -63,7 +60,7 @@ class Phonolammps:
         xc = lmp.gather_atoms("x", 1, 3)
         reference = np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))
 
-        template = get_correct_arrangement(reference, structure, self._supercell_matrix)
+        template = get_correct_arrangement(reference, self._structure, self._supercell_matrix)
         indexing = np.argsort(template)
 
         for i in range(na):
@@ -137,7 +134,7 @@ class Phonolammps:
             # Get forces from lammps
             for i, cell in enumerate(cells_with_disp):
                 if self._show_progress:
-                    print ('displacement {} / {}'.format(i+1, len(cells_with_disp)))
+                    print('displacement {} / {}'.format(i+1, len(cells_with_disp)))
                 forces = self.get_lammps_forces(cell)
                 data_sets['first_atoms'][i]['forces'] = forces
 
