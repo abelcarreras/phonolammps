@@ -86,15 +86,13 @@ def get_structure_from_lammps(file_name, show_log=False):
     :return: numpy array matrix with forces of atoms [Natoms x 3]
     """
 
-    input_file = file_name
-
     cmd_list = ['-log', 'none']
     if not show_log:
         cmd_list += ['-echo', 'none', '-screen', 'none']
 
     lmp = lammps(cmdargs=cmd_list)
 
-    lmp.file(input_file)
+    lmp.file(file_name)
     lmp.command('run 0')
 
     na = lmp.get_natoms()

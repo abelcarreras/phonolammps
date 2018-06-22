@@ -1,4 +1,4 @@
-__version__ = '0.4.3'
+__version__ = '0.4.4'
 
 import numpy as np
 
@@ -63,7 +63,7 @@ class Phonolammps:
         xc = lmp.gather_atoms("x", 1, 3)
         reference = np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))
 
-        template = get_correct_arrangement(reference, structure)
+        template = get_correct_arrangement(reference, structure, self._supercell_matrix)
         indexing = np.argsort(template)
 
         for i in range(na):
