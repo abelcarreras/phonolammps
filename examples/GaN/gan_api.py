@@ -1,4 +1,4 @@
-# Simple API example
+# Simple API example to calculate the harmonic force constants
 
 from phonolammps import Phonolammps
 import numpy as np
@@ -11,4 +11,4 @@ phlammps.plot_phonon_dispersion_bands()
 
 force_constants = phlammps.get_force_constants()
 
-print force_constants
+print(force_constants)

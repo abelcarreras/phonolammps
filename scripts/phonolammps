@@ -5,7 +5,7 @@ import argparse
 from phonolammps import Phonolammps
 
 
-parser = argparse.ArgumentParser(description='rfc_calc options')
+parser = argparse.ArgumentParser(description='phonolammps options')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
                     help='input file containing lammps script')

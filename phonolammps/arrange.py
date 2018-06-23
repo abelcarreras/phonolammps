@@ -16,7 +16,7 @@ def diff_matrix(array_1, array_2, cell_size):
 
 def phonopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])//size[1]
+    y = np.mod(i, size[0]*size[1])//size[0]
     z = np.mod(i, size[0]*size[1]*size[2])//(size[1]*size[0])
     k = i//(size[1]*size[0]*size[2])
 
