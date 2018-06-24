@@ -52,17 +52,16 @@ parser.add_argument('-t', type=float, default=None,
 parser.add_argument('--amplitude', type=str, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
-
 parser.add_argument('--total_time', type=float, default=20,
                     help='Total MD time in picoseconds [default: 20 ps]')
 
 parser.add_argument('--relaxation_time', type=float, default=5,
                     help='MD relaxation time in picoseconds [default: 5 ps]')
 
-parser.add_argument('--time_step', type=float, default=0.001,
+parser.add_argument('--timestep', type=float, default=0.001,
                     help='MD time step in picoseconds [default: 0.001 ps]')
 
-parser.add_argument('--log_show', action='store_true',
+parser.add_argument('--logshow', action='store_true',
                    help='show LAMMPS & dynaphopy log on screen')
 
 
@@ -72,7 +71,7 @@ phlammps = Phonolammps(args.lammps_input_file,
                        supercell_matrix=np.diag(args.dim),
                        primitive_matrix=np.array(args.primitive_axis).reshape((3, 3)),
                        displacement_distance=args.amplitude,
-                       show_log=args.log_show,
+                       show_log=args.logshow,
                        show_progress=True)
 
 # If temperature is set then do dynaphopy calculation
@@ -97,7 +96,7 @@ if args.t is not None:
     # generate LAMMPS MD trajectory (requires dynaphopy development)
     trajectory = generate_lammps_trajectory(structure, 'in.lammps',
                                             total_time=args.total_time,
-                                            time_step=args.time_step,
+                                            time_step=args.timestep,
                                             relaxation_time=args.relaxation_time,
                                             silent=False,
                                             supercell=args.dim,
@@ -107,7 +106,7 @@ if args.t is not None:
 
     # Calculate renormalized force constants with dynaphopy
     calculation = Quasiparticle(trajectory)
-    with silence_stdout(args.log_show):
+    with silence_stdout(args.logshow):
         calculation.select_power_spectra_algorithm(2)
         renormalized_force_constants = calculation.get_renormalized_force_constants().get_array()
 

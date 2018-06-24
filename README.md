@@ -19,8 +19,8 @@ Requirements
 - phonopy (https://atztogo.github.io/phonopy/)
 - LAMMPS python interface (http://lammps.sandia.gov/doc/Section_python.html)
 
-Optional requirements for band structure preview
---------------------------------------------------
+Optional requirements for phonon band structure preview
+-------------------------------------------------------
 - matplotlib
 - seekpath (https://github.com/giovannipizzi/seekpath)
 
@@ -51,13 +51,19 @@ Command line interface
 phonoLAMMPS has a similar interface to phonopy to allow to easily
 calculate the 2nd order force constants and generate the crystal unitcell
 from a LAMMPS input file in VASP/POSCAR format. All outputs
-are ready to use in phonopy calculations.
+are fully compatible and ready to use in phonopy calculations.
 Also features a quick preview of the phonon
 band structure (requires seekpath). 
 
 ```
 # phonolammps in.lammps --dim 3 3 3 -c POSCAR_unitcell -p
 ```
+Additionally phonoLAMMPS allows to easily calculate finite temperature force constants 
+from molecular dynamics by quasiparticle theory (requires dynaphopy).
+```
+# phonolammps in.lammps --dim 3 3 3  -c POSCAR_unitcell -p -t 300
+```
+
 
 Python API 
 ----------
