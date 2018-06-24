@@ -56,7 +56,7 @@ Also features a quick preview of the phonon
 band structure (requires seekpath). 
 
 ```
-# phonolammps in.lammps --dim 3 3 3 -c POSCAR_unitcell -p
+# phonolammps in.lammps --dim 2 2 2 -c POSCAR_unitcell -p
 ```
 Additionally phonoLAMMPS allows to easily calculate finite temperature force constants 
 from molecular dynamics by quasiparticle theory (requires dynaphopy).

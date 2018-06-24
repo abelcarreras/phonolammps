@@ -24,15 +24,15 @@ def silence_stdout(deactivate):
 def show_stdout():
     yield None
 
-parser = argparse.ArgumentParser(description='dynaphonolammps options')
+parser = argparse.ArgumentParser(description='phonoLAMMPS options')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
-                    help='input file containing lammps script')
+                    help='lammps input file')
 
 parser.add_argument('-o', metavar='file', type=str, default='FORCE_CONSTANTS',
                     help='force constants output file [default: FORCE_CONSTANTS]')
 
-parser.add_argument('--dim', metavar='file', type=int, nargs=3,  default=[1, 1, 1],
+parser.add_argument('--dim', metavar='N', type=int, nargs=3,  default=[1, 1, 1],
                     help='dimensions of the supercell')
 
 parser.add_argument('-p', action='store_true',
@@ -46,19 +46,19 @@ parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,
                                                                                            0, 0, 1],
                     help='primitive axis')
 
-parser.add_argument('-t', type=float, default=None,
+parser.add_argument('-t', metavar='F', type=float, default=None,
                     help='Temperature in K')
 
-parser.add_argument('--amplitude', type=str, default=0.01,
+parser.add_argument('--amplitude', metavar='F', type=str, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
-parser.add_argument('--total_time', type=float, default=20,
+parser.add_argument('--total_time', metavar='F', type=float, default=20,
                     help='Total MD time in picoseconds [default: 20 ps]')
 
-parser.add_argument('--relaxation_time', type=float, default=5,
+parser.add_argument('--relaxation_time', metavar='F', type=float, default=5,
                     help='MD relaxation time in picoseconds [default: 5 ps]')
 
-parser.add_argument('--timestep', type=float, default=0.001,
+parser.add_argument('--timestep', metavar='F', type=float, default=0.001,
                     help='MD time step in picoseconds [default: 0.001 ps]')
 
 parser.add_argument('--logshow', action='store_true',
