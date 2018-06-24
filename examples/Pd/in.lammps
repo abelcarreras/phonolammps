@@ -1,0 +1,15 @@
+
+units		metal
+
+boundary	p p p
+
+box tilt large
+
+atom_style      atomic
+
+read_data       data.pd
+
+pair_style      eam
+pair_coeff      * * Pd.eam
+
+neighbor	0.3  bin

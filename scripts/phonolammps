@@ -2,10 +2,29 @@
 
 import numpy as np
 import argparse
+import os
+import sys
+from contextlib import contextmanager
 from phonolammps import Phonolammps
 
+# Define function to silence output
+@contextmanager
+def silence_stdout(deactivate):
+    if deactivate:
+        yield None
+    else:
+        new_target = open(os.devnull, "w")
+        old_target, sys.stdout = sys.stdout, new_target
+        try:
+            yield new_target
+        finally:
+            sys.stdout = old_target
 
-parser = argparse.ArgumentParser(description='phonolammps options')
+@contextmanager
+def show_stdout():
+    yield None
+
+parser = argparse.ArgumentParser(description='dynaphonolammps options')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
                     help='input file containing lammps script')
@@ -27,11 +46,24 @@ parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,
                                                                                            0, 0, 1],
                     help='primitive axis')
 
+parser.add_argument('-t', type=float, default=None,
+                    help='Temperature in K')
+
 parser.add_argument('--amplitude', type=str, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
+
+parser.add_argument('--total_time', type=float, default=20,
+                    help='Total MD time in picoseconds [default: 20 ps]')
+
+parser.add_argument('--relaxation_time', type=float, default=5,
+                    help='MD relaxation time in picoseconds [default: 5 ps]')
+
+parser.add_argument('--time_step', type=float, default=0.001,
+                    help='MD time step in picoseconds [default: 0.001 ps]')
+
 parser.add_argument('--log_show', action='store_true',
-                   help='show LAMMPS log on screen')
+                   help='show LAMMPS & dynaphopy log on screen')
 
 
 args = parser.parse_args()
@@ -43,12 +75,56 @@ phlammps = Phonolammps(args.lammps_input_file,
                        show_log=args.log_show,
                        show_progress=True)
 
-if args.p:
-    phlammps.plot_phonon_dispersion_bands()
+# If temperature is set then do dynaphopy calculation
+if args.t is not None:
+    from dynaphopy import Quasiparticle
+    from dynaphopy.atoms import Structure
+    from dynaphopy.interface.lammps_link import generate_lammps_trajectory
+    from dynaphopy.interface.phonopy_link import ForceConstants
+    from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5
+
+    unitcell = phlammps.get_unitcell()
+    force_constants = phlammps.get_force_constants()
+    structure = Structure(cell=unitcell.get_cell(),  # cell_matrix, lattice vectors in rows
+                          scaled_positions=unitcell.get_scaled_positions(),
+                          atomic_elements=unitcell.get_chemical_symbols(),
+                          primitive_matrix=np.identity(3))
+
+    structure.set_force_constants(ForceConstants(force_constants,
+                                                 supercell=np.diag(args.dim)))
+
+    structure.set_supercell_matrix(np.diag(args.dim))
+    # generate LAMMPS MD trajectory (requires dynaphopy development)
+    trajectory = generate_lammps_trajectory(structure, 'in.lammps',
+                                            total_time=args.total_time,
+                                            time_step=args.time_step,
+                                            relaxation_time=args.relaxation_time,
+                                            silent=False,
+                                            supercell=args.dim,
+                                            memmap=False,
+                                            velocity_only=True,
+                                            temperature=args.t)
+
+    # Calculate renormalized force constants with dynaphopy
+    calculation = Quasiparticle(trajectory)
+    with silence_stdout(args.log_show):
+        calculation.select_power_spectra_algorithm(2)
+        renormalized_force_constants = calculation.get_renormalized_force_constants().get_array()
+
+    if args.p:
+        calculation.plot_renormalized_phonon_dispersion_bands()
+
+    print('writing renormalized force constants')
+    write_FORCE_CONSTANTS(renormalized_force_constants, filename='FORCE_CONSTANTS')
+
+else:
+    if args.p:
+        phlammps.plot_phonon_dispersion_bands()
+
+    if args.t is None:
+        print('writing force constants')
+        phlammps.write_force_constants(filename=args.o)
 
 if args.cell is not None:
     print ('writing POSCAR file: {}'.format(args.cell))
     phlammps.write_unitcell_POSCAR(args.cell)
-
-print ('writing force constants')
-phlammps.write_force_constants(filename=args.o)

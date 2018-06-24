@@ -1,0 +1,10 @@
+---------------------------------------------
+Pb EAM potential example using primitive cell
+---------------------------------------------
+
+This example requires the EAM potential developed by J.B. Adams, which can be obtained from:
+https://www.ctcms.nist.gov/potentials/1989--Adams-J-B--Pd.html (file should be renamed to Pd.eam)
+
+Run this example as follows to generate the force constants and show band structure:
+
+# phonolammps in.lammps --dim 4 4 4 -c POSCAR_unitcell -p
