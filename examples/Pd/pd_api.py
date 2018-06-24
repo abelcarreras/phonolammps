@@ -1,6 +1,8 @@
+#########################################################################
 # Example to calculate renormalized force constants at finite temperature
 # by using molecular dynamics & phonon quasiparticle approach
 # Requires: lammps, phonopy & dynaphopy
+#########################################################################
 
 from phonolammps import Phonolammps
 from dynaphopy import Quasiparticle

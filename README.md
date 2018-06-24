@@ -10,6 +10,7 @@ Main features
 - Python API fully compatible with phonopy
 - Use of official LAMMPS python interface
 - Simple and easy to use
+- New! Finite temperature force constants using DynaPhoPy
 
 Requirements
 ------------
@@ -18,10 +19,14 @@ Requirements
 - phonopy (https://atztogo.github.io/phonopy/)
 - LAMMPS python interface (http://lammps.sandia.gov/doc/Section_python.html)
 
-Optional requirements (for band structure preview)
+Optional requirements for band structure preview
 --------------------------------------------------
 - matplotlib
 - seekpath (https://github.com/giovannipizzi/seekpath)
+
+Optional requirements for finite temperature FC calculations
+------------------------------------------------------------
+- DynaPhoPy (https://github.com/abelcarreras/DynaPhoPy)
 
 
 Installation instructions
