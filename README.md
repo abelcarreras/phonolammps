@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/phonoLAMMPS.svg)](https://badge.fury.io/py/phonoLAMMPS)
+[![Downloads](http://pepy.tech/badge/phonolammps)](http://pepy.tech/project/phonolammps)
 
 phonoLAMMPS
 ===========
