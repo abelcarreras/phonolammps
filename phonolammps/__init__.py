@@ -9,7 +9,7 @@ from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps, generate_VASP_structure
 
 # define the force unit conversion factors to LAMMPS metal style (eV/Angstrom)
-unit_factors = {'real': 4.3363e-2,
+unit_factors = {'real': 4.336410389526464e-2,
                 'metal': 1.0,
                 'si': 624150636.3094}
 
@@ -44,8 +44,8 @@ class Phonolammps:
 
         self.units = self.get_units(lammps_input_file)
 
-        if not self.units in self.unit_factors.keys():
-            print ('Units style not supported, use: {}'.format(self.unit_factors.keys()))
+        if not self.units in unit_factors.keys():
+            print ('Units style not supported, use: {}'.format(unit_factors.keys()))
             exit()
 
     def get_units(self, input_file):
