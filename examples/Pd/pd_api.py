@@ -34,7 +34,7 @@ primitive_mat = [[1, 0, 0],
                  [0, 0, 1]]
 temperature = 800
 
-# calculate harmonic force consntants with phonolammps
+# calculate harmonic force constants with phonolammps
 phlammps = Phonolammps('in.lammps',
                        supercell_matrix=np.diag(supercell),
                        primitive_matrix=primitive_mat)

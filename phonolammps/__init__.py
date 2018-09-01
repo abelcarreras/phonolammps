@@ -8,6 +8,11 @@ from phonolammps.arrange import get_correct_arrangement
 from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps, generate_VASP_structure
 
+# define the force unit conversion factors to LAMMPS metal style (eV/Angstrom)
+unit_factors = {'real': 4.3363e-2,
+                'metal': 1.0,
+                'si': 624150636.3094}
+
 
 class Phonolammps:
     def __init__(self,
@@ -37,6 +42,19 @@ class Phonolammps:
 
         self._force_constants = None
 
+        self.units = self.get_units(lammps_input_file)
+
+        if not self.units in self.unit_factors.keys():
+            print ('Units style not supported, use: {}'.format(self.unit_factors.keys()))
+            exit()
+
+    def get_units(self, input_file):
+        with open(input_file, 'r') as f:
+            for line in f.readlines():
+                if line.startswith('units'):
+                    return line.split()[1]
+        return 'lj'
+
     def get_lammps_forces(self, cell_with_disp):
         """
         Calculate the forces of a supercell using lammps
@@ -56,7 +74,6 @@ class Phonolammps:
         lmp.command('run 0')
 
         na = lmp.get_natoms()
-
         xc = lmp.gather_atoms("x", 1, 3)
         reference = np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))
 
@@ -74,7 +91,7 @@ class Phonolammps:
         forces = lmp.gather_atoms("f", 1, 3)
 
         forces = np.array([forces[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :]
-
+        forces = forces * unit_factors[self.units]
         lmp.close()
 
         return forces
