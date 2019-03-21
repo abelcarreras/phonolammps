@@ -49,7 +49,7 @@ parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,
 parser.add_argument('-t', metavar='F', type=float, default=None,
                     help='Temperature in K')
 
-parser.add_argument('--amplitude', metavar='F', type=str, default=0.01,
+parser.add_argument('--amplitude', metavar='F', type=float, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
 parser.add_argument('--total_time', metavar='F', type=float, default=20,
