@@ -21,11 +21,12 @@ def get_phonon(structure,
                NAC=False,
                setup_forces=True,
                super_cell_phonon=np.identity(3),
-               primitive_axis=np.identity(3)):
+               primitive_axis=np.identity(3),
+               symmetrize=True):
 
     phonon = Phonopy(structure, super_cell_phonon,
                      primitive_matrix=primitive_axis,
-                     symprec=1e-5)
+                     symprec=1e-5, is_symmetry=symmetrize)
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
 
@@ -44,8 +45,12 @@ def get_phonon(structure,
     if NAC:
         print("Using non-analytical corrections")
         primitive = phonon.get_primitive()
-        nac_params = parse_BORN(primitive, is_symmetry=True)
-        phonon.set_nac_params(nac_params=nac_params)
+        try:
+            nac_params = parse_BORN(primitive, is_symmetry=True)
+            phonon.set_nac_params(nac_params=nac_params)
+        except OSError:
+            print('Required BORN file not found!')
+            exit()
 
     return phonon
 

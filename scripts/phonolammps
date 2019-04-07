@@ -24,6 +24,7 @@ def silence_stdout(deactivate):
 def show_stdout():
     yield None
 
+
 parser = argparse.ArgumentParser(description='phonoLAMMPS options')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
@@ -47,13 +48,13 @@ parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,
                     help='primitive axis')
 
 parser.add_argument('-t', metavar='F', type=float, default=None,
-                    help='Temperature in K')
+                    help='temperature in K')
 
 parser.add_argument('--amplitude', metavar='F', type=float, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
 parser.add_argument('--total_time', metavar='F', type=float, default=20,
-                    help='Total MD time in picoseconds [default: 20 ps]')
+                    help='total MD time in picoseconds [default: 20 ps]')
 
 parser.add_argument('--relaxation_time', metavar='F', type=float, default=5,
                     help='MD relaxation time in picoseconds [default: 5 ps]')
@@ -64,6 +65,11 @@ parser.add_argument('--timestep', metavar='F', type=float, default=0.001,
 parser.add_argument('--logshow', action='store_true',
                    help='show LAMMPS & dynaphopy log on screen')
 
+parser.add_argument('--no_symmetrize', action='store_true',
+                   help='deactivate force constant symmetrization')
+
+parser.add_argument('--use_NAC', action='store_true',
+                   help='include non analytical corrections (Requires BORN file in work directory)')
 
 args = parser.parse_args()
 
@@ -72,7 +78,9 @@ phlammps = Phonolammps(args.lammps_input_file,
                        primitive_matrix=np.array(args.primitive_axis).reshape((3, 3)),
                        displacement_distance=args.amplitude,
                        show_log=args.logshow,
-                       show_progress=True)
+                       show_progress=True,
+                       use_NAC=args.use_NAC,
+                       symmetrize=not(args.no_symmetrize))
 
 # If temperature is set then do dynaphopy calculation
 if args.t is not None:

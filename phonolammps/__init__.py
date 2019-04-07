@@ -21,7 +21,9 @@ class Phonolammps:
                  primitive_matrix=np.identity(3),
                  displacement_distance=0.01,
                  show_log=False,
-                 show_progress=False):
+                 show_progress=False,
+                 use_NAC=False,
+                 symmetrize=True):
         """
         :param lammps_input_file:  LAMMPS input file name (see example)
         :param supercell_matrix:  3x3 matrix supercell
@@ -39,6 +41,8 @@ class Phonolammps:
         self._displacement_distance = displacement_distance
         self._show_log = show_log
         self._show_progress = show_progress
+        self._symmetrize = symmetrize
+        self._NAC = use_NAC
 
         self._force_constants = None
 
@@ -138,7 +142,9 @@ class Phonolammps:
         if self._force_constants is None:
             phonon = get_phonon(self._structure,
                                 setup_forces=False,
-                                super_cell_phonon=self._supercell_matrix)
+                                super_cell_phonon=self._supercell_matrix,
+                                NAC=self._NAC,
+                                symmetrize=self._symmetrize)
 
             phonon.get_displacement_dataset()
             phonon.generate_displacements(distance=self._displacement_distance)
