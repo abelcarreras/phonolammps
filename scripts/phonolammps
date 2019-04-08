@@ -71,6 +71,9 @@ parser.add_argument('--no_symmetrize', action='store_true',
 parser.add_argument('--use_NAC', action='store_true',
                    help='include non analytical corrections (Requires BORN file in work directory)')
 
+parser.add_argument('--write_force_sets', action='store_true',
+                   help='write FORCE_SETS file')
+
 args = parser.parse_args()
 
 phlammps = Phonolammps(args.lammps_input_file,
@@ -122,15 +125,18 @@ if args.t is not None:
         calculation.plot_renormalized_phonon_dispersion_bands()
 
     print('writing renormalized force constants')
-    write_FORCE_CONSTANTS(renormalized_force_constants, filename='FORCE_CONSTANTS')
+    write_FORCE_CONSTANTS(renormalized_force_constants, filename=args.o)
 
 else:
     if args.p:
         phlammps.plot_phonon_dispersion_bands()
 
-    if args.t is None:
-        print('writing force constants')
-        phlammps.write_force_constants(filename=args.o)
+    if args.write_force_sets:
+        print('writing force sets')
+        phlammps.write_force_sets(filename='FORCE_SETS')
+    print('writing force constants')
+    phlammps.write_force_constants(filename=args.o)
+
 
 if args.cell is not None:
     print ('writing POSCAR file: {}'.format(args.cell))

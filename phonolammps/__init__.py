@@ -3,7 +3,7 @@ __version__ = '0.5.0'
 import numpy as np
 
 from lammps import lammps
-from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5
+from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5, write_FORCE_SETS
 from phonolammps.arrange import get_correct_arrangement
 from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import get_structure_from_poscar, get_structure_from_lammps, generate_VASP_structure
@@ -45,6 +45,7 @@ class Phonolammps:
         self._NAC = use_NAC
 
         self._force_constants = None
+        self._data_set = None
 
         self.units = self.get_units(lammps_input_file)
 
@@ -132,7 +133,7 @@ class Phonolammps:
             return {'ranges': band_ranges,
                     'labels': [['GAMMA', '1/2 0 1/2']]}
 
-    def get_force_constants(self):
+    def get_force_constants(self, include_data_set=False):
         """
         calculate the force constants with phonopy using lammps to calculate forces
 
@@ -152,20 +153,24 @@ class Phonolammps:
 
             cells_with_disp = [cell.get_positions() for cell in cells_with_disp]
 
-            data_sets = phonon.get_displacement_dataset()
+            data_set = phonon.get_displacement_dataset()
 
             # Get forces from lammps
             for i, cell in enumerate(cells_with_disp):
                 if self._show_progress:
                     print('displacement {} / {}'.format(i+1, len(cells_with_disp)))
                 forces = self.get_lammps_forces(cell)
-                data_sets['first_atoms'][i]['forces'] = forces
+                data_set['first_atoms'][i]['forces'] = forces
 
-            phonon.set_displacement_dataset(data_sets)
+            phonon.set_displacement_dataset(data_set)
             phonon.produce_force_constants()
             self._force_constants = phonon.get_force_constants()
+            self._data_set = data_set
 
-        return self._force_constants
+        if include_data_set:
+            return [self._force_constants, self._data_set]
+        else:
+            return self._force_constants
 
     def plot_phonon_dispersion_bands(self):
         """
@@ -239,6 +244,18 @@ class Phonolammps:
             write_force_constants_to_hdf5(force_constants, filename=filename)
         else:
             write_FORCE_CONSTANTS(force_constants, filename=filename)
+
+    def write_force_sets(self, filename='FORCE_SETS'):
+        """
+        Write the force sets in a file in phonopy plain text format
+
+        :param filename: Force sets filename
+        :return:
+        """
+
+        data_set = self.get_force_constants(include_data_set=True)[1]
+
+        write_FORCE_SETS(data_set, filename=filename)
 
     def get_unitcell(self):
         return self._structure
