@@ -4,8 +4,6 @@ import numpy as np
 from phonopy.structure.atoms import PhonopyAtoms
 from phonolammps.phonopy_link import PhonopyAtomsTinker
 
-from lammps import lammps
-
 
 def mass_to_symbol(mass, tolerance=5e-1):
     from phonopy.structure.atoms import atom_data
@@ -87,6 +85,7 @@ def get_structure_from_lammps(file_name, show_log=False):
     :param file_name: LAMMPS input filename
     :return: numpy array matrix with forces of atoms [Natoms x 3]
     """
+    from lammps import lammps
 
     cmd_list = ['-log', 'none']
     if not show_log:
