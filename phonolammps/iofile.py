@@ -272,7 +272,7 @@ def generate_tinker_key_file(structure,
 
 def parse_tinker_forces(output):
 
-    data = output.split('Anlyt')[1:-2]
+    data = output.decode().split('Anlyt')[1:-2]
 
     gradient = []
     for d in data:
