@@ -80,3 +80,65 @@ def get_correct_arrangement(reference, structure, supercell_matrix):
         exit()
 
     return template
+
+
+def rebuild_connectivity_tinker(structure, supercell, matrix):
+
+    from phonolammps.phonopy_link import PhonopyAtomsTinker
+
+    connectivity = structure.get_connectivity()
+    atom_types = structure.get_atom_types()
+    symbols = structure.get_chemical_symbols()
+    positions_u = structure.get_scaled_positions()
+
+
+    positions_s = supercell.get_scaled_positions()
+    sc = np.array(np.diag(matrix), dtype=float)
+    cell = supercell.get_cell()
+    nat = structure.get_number_of_atoms()
+
+    connectivity_s = []
+    atom_types_s = []
+    symbol_s = []
+
+    list_con = np.zeros((int(sc[0]), int(sc[1]), int(sc[2]), nat+1), dtype=int)
+    l = 0
+    for c, ll in enumerate(range(nat)):
+        for i in range(int(sc[0])):
+            for j in range(int(sc[1])):
+                for k in range(int(sc[2])):
+                    list_con[i, j, k, c] = l
+                    l = l+1
+
+    l=0
+    for (con, typ), (sym, pos) in zip(zip(connectivity, atom_types), zip(symbols, positions_u)):
+        for i in range(int(sc[0])):
+            for j in range(int(sc[1])):
+                for k in range(int(sc[2])):
+                    #print(pos)
+                    p = pos * np.array([1/sc[0], 1/sc[1], 1/sc[2]]) + np.array([k/sc[0], j/sc[1], i/sc[2]])
+                    #print(p)
+                    #print(positions_s[l])
+                    con2 = []
+                    for c in con:
+                        #con2.append(int(c + i*sc[1]*sc[2]*nat + j*sc[2]*nat + k*nat))
+                        con2.append(list_con[i,j,k,c-1]+1)
+
+                    #print(con2)
+                    #exit()
+                    connectivity_s.append(con2)
+                    atom_types_s.append(typ)
+                    symbol_s.append(sym)
+
+                    v = np.round(p - positions_s[l])
+                    if np.linalg.norm(v) != 0:
+                        positions_s[l] += v
+
+                    l +=1
+
+    return PhonopyAtomsTinker(positions=np.dot(positions_s, cell),
+                              symbols=symbol_s,
+                              cell=cell,
+                              connectivity=connectivity_s,
+                              atom_types=atom_types_s)
+

@@ -1,7 +1,25 @@
 from phonopy.api_phonopy import Phonopy
-#from phonopy.structure.atoms import Atoms as PhonopyAtoms
+from phonopy.structure.atoms import PhonopyAtoms
 from phonopy.file_IO import parse_BORN
 import numpy as np
+
+
+# Subclassing PhonopyAtoms to include connectivity & atom types (for tinker)
+class PhonopyAtomsTinker(PhonopyAtoms):
+    def __init__(self, **kwargs):
+        # Extract connectivity & atom types
+        connectivity = kwargs.pop('connectivity', None)
+        atom_types = kwargs.pop('atom_types', None)
+        self._connectivity = connectivity
+        self._atom_types = atom_types
+
+        super(PhonopyAtomsTinker, self).__init__(**kwargs)
+
+    def get_connectivity(self):
+        return self._connectivity
+
+    def get_atom_types(self):
+        return self._atom_types
 
 
 class ForceConstants:

@@ -2,6 +2,8 @@ import os
 import numpy as np
 
 from phonopy.structure.atoms import PhonopyAtoms
+from phonolammps.phonopy_link import PhonopyAtomsTinker
+
 from lammps import lammps
 
 
@@ -131,13 +133,24 @@ def generate_VASP_structure(structure, scaled=True, supercell=(1, 1, 1)):
     cell = structure.get_cell()
     types = structure.get_chemical_symbols()
 
-    atom_type_unique = np.unique(types, return_index=True)
+    elements = [types[0]]
+    elements_count = [1]
+
+    for t in types[1:]:
+        if t == elements[-1]:
+            elements_count[-1] += 1
+        else:
+            elements.append(t)
+            elements_count.append(1)
+
+    #atom_type_unique = np.unique(types, return_index=True)
 
     # To use unique without sorting
-    sort_index = np.argsort(atom_type_unique[1])
-    elements = np.array(atom_type_unique[0])[sort_index]
-    elements_count= np.diff(np.append(np.array(atom_type_unique[1])[sort_index], [len(types)]))
+    #sort_index = np.argsort(atom_type_unique[1])
+    #elements = np.array(atom_type_unique[0])[sort_index]
 
+    #elements_count= np.diff(np.append(np.array(atom_type_unique[1])[sort_index], [len(types)]))
+    #print(elements_count)
 
     vasp_POSCAR = 'Generated using phonoLAMMPS\n'
     vasp_POSCAR += '1.0\n'
@@ -160,3 +173,110 @@ def generate_VASP_structure(structure, scaled=True, supercell=(1, 1, 1)):
             vasp_POSCAR += '{0:20.10f} {1:20.10f} {2:20.10f}\n'.format(*row)
 
     return vasp_POSCAR
+
+
+def get_structure_from_txyz(file_name, key_file):
+
+    tinker_file = open(file_name, 'r')
+
+    coordinates = []
+    atomic_numbers = []
+    atomic_elements = []
+    atom_types = []
+    connectivity = []
+
+    number_of_atoms = int(tinker_file.readline().split()[0])
+
+    # print(number_of_atoms)
+    for i in range(number_of_atoms):
+        line = tinker_file.readline().split()
+        # Check if txyz contains cell parameters
+        if line[1].replace('.','',1).isdigit():
+            line = tinker_file.readline().split()
+
+        coordinates.append(line[2:5])
+        atomic_numbers.append(int(line[0]))
+        atomic_elements.append(line[1])
+        atom_types.append(line[5])
+        connectivity.append([int(f) for f in line[6:]])
+    # print(np.array(coordinates,dtype=float))
+
+    tinker_file.close()
+
+    lines = open(key_file, 'r').readlines()
+    # print lines
+
+    params = []
+    for label in ['a-axis', 'b-axis', 'c-axis', 'alpha', 'beta', 'gamma']:
+        for line in lines:
+            if label in line.lower():
+                params.append(float(line.split()[1]))
+    a, b, c, alpha, beta, gamma = params
+
+    # unitcell = [[0, a, 0],
+    #             [0, 0, c],
+    #             [b, 0, 0]]
+
+    unitcell = [[a, 0, 0],
+                [0, b, 0],
+                [0, 0, c]]
+
+    return PhonopyAtomsTinker(positions=np.array(coordinates, dtype=float),
+                              symbols=atomic_elements,
+                              cell=unitcell,
+                              connectivity=connectivity,
+                              atom_types=atom_types)
+
+
+def generate_tinker_txyz_file(structure):
+    pos = structure.get_positions()
+    sym = structure.get_chemical_symbols()
+    con = structure.get_connectivity()
+    typ = structure.get_atom_types()
+
+    tinker_txt = '{}      MM2 parameters\n'.format(len(pos))
+    for i, p in enumerate(pos):
+        tinker_txt += ' {} {} '.format(i+1, sym[i]) + '{} {} {} '.format(*p) + ' {} '.format(typ[i]) + ' '.join(np.array(con[i], dtype=str)) + '\n'
+
+    return tinker_txt
+
+
+def generate_tinker_key_file(structure,
+                             archive='overwrite',
+                             cutoff=20):
+
+    cell = structure.get_cell()
+
+    a = cell[0,0]
+    b = cell[1,1]
+    c = cell[2,2]
+
+    alpha = 90
+    beta = 90
+    gamma = 90
+
+    tinker_txt = '# Cell parameters\n'
+    tinker_txt += 'a-axis  {}\n'.format(a)
+    tinker_txt += 'b-axis  {}\n'.format(b)
+    tinker_txt += 'c-axis  {}\n'.format(c)
+
+    tinker_txt += 'ALPHA  {}\n'.format(alpha)
+    tinker_txt += 'BETA   {}\n'.format(beta)
+    tinker_txt += 'GAMMA  {}\n'.format(gamma)
+
+    tinker_txt += '# Other parameters\n'.format(c)
+    #tinker_txt += 'cutoff {}\n'.format(cutoff)
+    tinker_txt += 'archive {}\n'.format(archive)
+
+    return tinker_txt
+
+
+def parse_tinker_forces(output):
+
+    data = output.split('Anlyt')[1:-2]
+
+    gradient = []
+    for d in data:
+        gradient.append(d.split()[1:4])
+    forces = -np.array(gradient, dtype=float)
+    return forces
