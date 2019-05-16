@@ -2,7 +2,6 @@ __version__ = '0.5.2'
 
 import numpy as np
 
-from lammps import lammps
 from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5, write_FORCE_SETS
 from phonolammps.arrange import get_correct_arrangement, rebuild_connectivity_tinker
 from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
@@ -260,6 +259,8 @@ class Phonolammps(PhonoBase):
         :param cell_with_disp: supercell from which determine the forces
         :return: numpy array matrix with forces of atoms [Natoms x 3]
         """
+
+        from lammps import lammps
 
         supercell_sizes = np.diag(self._supercell_matrix)
 
