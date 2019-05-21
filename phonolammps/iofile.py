@@ -242,7 +242,7 @@ def generate_tinker_txyz_file(structure):
 
 def generate_tinker_key_file(structure,
                              archive='overwrite',
-                             cutoff=20):
+                             wdv_cutoff=20):
 
     cell = structure.get_cell()
 
@@ -264,7 +264,7 @@ def generate_tinker_key_file(structure,
     tinker_txt += 'GAMMA  {}\n'.format(gamma)
 
     tinker_txt += '# Other parameters\n'.format(c)
-    #tinker_txt += 'cutoff {}\n'.format(cutoff)
+    tinker_txt += 'VDW-CUTOFF {}\n'.format(wdv_cutoff)
     tinker_txt += 'archive {}\n'.format(archive)
 
     return tinker_txt
