@@ -18,7 +18,7 @@ Requirements
 - python 2.7.x/3.x
 - numpy
 - phonopy (https://atztogo.github.io/phonopy/)
-- LAMMPS python interface (http://lammps.sandia.gov/doc/Section_python.html)
+- LAMMPS python interface (https://lammps.sandia.gov/doc/Python_library.html)
 
 Optional requirements for phonon band structure preview
 -------------------------------------------------------
