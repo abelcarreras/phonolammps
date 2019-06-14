@@ -29,6 +29,10 @@ Optional requirements for finite temperature FC calculations
 ------------------------------------------------------------
 - DynaPhoPy (https://github.com/abelcarreras/DynaPhoPy)
 
+Optional requirements for tinker
+------------------------------------------------------------
+- Tinker testgrad (https://dasher.wustl.edu/tinker/)
+
 
 Installation instructions
 --------------------------

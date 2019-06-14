@@ -19,13 +19,6 @@ unit_factors = {'real': 4.336410389526464e-2,
 
 class PhonoBase:
 
-    def get_units(self, input_file):
-        with open(input_file, 'r') as f:
-            for line in f.readlines():
-                if line.startswith('units'):
-                    return line.split()[1]
-        return 'lj'
-
     def get_path_using_seek_path(self):
 
         """
@@ -252,6 +245,13 @@ class Phonolammps(PhonoBase):
         if not self.units in unit_factors.keys():
             print ('Units style not supported, use: {}'.format(unit_factors.keys()))
             exit()
+
+    def get_units(self, input_file):
+        with open(input_file, 'r') as f:
+            for line in f.readlines():
+                if line.startswith('units'):
+                    return line.split()[1]
+        return 'lj'
 
     def get_forces(self, cell_with_disp):
         """
