@@ -1,0 +1,12 @@
+#####################################
+# Required packages for phonolammps #
+#####################################
+
+# mandatory
+numpy>=1.8.2
+phonopy
+lammps
+
+# optional
+matplotlib
+seekpath
