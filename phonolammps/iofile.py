@@ -78,11 +78,11 @@ def get_structure_from_poscar(file_name, number_of_dimensions=3):
                         cell=direct_cell)
 
 
-def get_structure_from_lammps(file_name, show_log=False):
+def get_structure_from_lammps(command_list, show_log=False):
     """
     Get the crystal structure from lammps input
 
-    :param file_name: LAMMPS input filename
+    :param command_list: LAMMPS input commands in list (one item for line)
     :return: numpy array matrix with forces of atoms [Natoms x 3]
     """
     from lammps import lammps
@@ -93,7 +93,7 @@ def get_structure_from_lammps(file_name, show_log=False):
 
     lmp = lammps(cmdargs=cmd_list)
 
-    lmp.file(file_name)
+    lmp.commands_list(command_list)
     lmp.command('run 0')
 
     na = lmp.get_natoms()

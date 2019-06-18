@@ -209,7 +209,7 @@ class PhonoBase:
 ################################
 class Phonolammps(PhonoBase):
     def __init__(self,
-                 lammps_input_file,
+                 lammps_input,
                  supercell_matrix=np.identity(3),
                  primitive_matrix=np.identity(3),
                  displacement_distance=0.01,
@@ -218,7 +218,7 @@ class Phonolammps(PhonoBase):
                  use_NAC=False,
                  symmetrize=True):
         """
-        :param lammps_input_file:  LAMMPS input file name (see example)
+        :param lammps_input: LAMMPS input file name or list of commands
         :param supercell_matrix:  3x3 matrix supercell
         :param primitive cell:  3x3 matrix primitive cell
         :param displacement_distance: displacement distance in Angstroms
@@ -226,8 +226,16 @@ class Phonolammps(PhonoBase):
         :param show_progress: Set true to display progress of calculation
         """
 
-        self._structure = get_structure_from_lammps(lammps_input_file)
-        self._lammps_input_file = lammps_input_file
+        # Check if input is file or list of commands
+        if type(lammps_input) is str:
+            # read from file name
+            self._lammps_input_file = lammps_input
+            self._lammps_commands_list = open(lammps_input).read().split('\n')
+        else:
+            # read from commands
+            self._lammps_commands_list = lammps_input
+
+        self._structure = get_structure_from_lammps(self._lammps_commands_list)
 
         self._supercell_matrix = supercell_matrix
         self._primitive_matrix = primitive_matrix
@@ -240,15 +248,14 @@ class Phonolammps(PhonoBase):
         self._force_constants = None
         self._data_set = None
 
-        self.units = self.get_units(lammps_input_file)
+        self.units = self.get_units(self._lammps_commands_list)
 
         if not self.units in unit_factors.keys():
             print ('Units style not supported, use: {}'.format(unit_factors.keys()))
             exit()
 
-    def get_units(self, input_file):
-        with open(input_file, 'r') as f:
-            for line in f.readlines():
+    def get_units(self, commands_list):
+        for line in commands_list:
                 if line.startswith('units'):
                     return line.split()[1]
         return 'lj'
@@ -269,7 +276,8 @@ class Phonolammps(PhonoBase):
             cmd_list += ['-echo', 'none', '-screen', 'none']
 
         lmp = lammps(cmdargs=cmd_list)
-        lmp.file(self._lammps_input_file)
+        # lmp.file(self._lammps_input_file)
+        lmp.commands_list(self._lammps_commands_list)
         lmp.command('replicate {} {} {}'.format(*supercell_sizes))
         lmp.command('run 0')
 

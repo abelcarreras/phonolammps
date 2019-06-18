@@ -3,7 +3,9 @@
 from phonolammps import Phonolammps
 import numpy as np
 
-phlammps = Phonolammps('in.lammps',
+lammps_inp = open('in.lammps').read().split('\n')
+print(np.array(lammps_inp))
+phlammps = Phonolammps(lammps_inp,
                        supercell_matrix=np.diag([3, 3, 3]),
                        primitive_matrix=np.identity(3))
 

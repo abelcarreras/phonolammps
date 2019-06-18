@@ -1,0 +1,18 @@
+This is phonoLAMMPS documentation written using sphinx
+
+To compile this documentation sphinx should be installed in your system.
+You can use pip to install it:
+
+   pip install sphinx --user
+
+
+Use the provided Makefile to compile the documentation. Example:
+
+HTML compilation:
+
+   make html
+
+Latex document compilation (requires latex to be installed in your system):
+
+   make latexpdf
+
