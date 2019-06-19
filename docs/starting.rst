@@ -66,9 +66,8 @@ From this you have all the information you need for phonopy calculations ::
     phonon.plot_thermal_properties().show()
 
 
-command line interface
+Command line interface
 ----------------------
-
 To use phonoLAMMPS from command line interface you need a LAMMPS input file containing the
 definition of the unit cell and potentials.
 
