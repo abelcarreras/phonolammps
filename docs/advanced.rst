@@ -30,12 +30,12 @@ To use this feature dynaphopy must be installed (for further details check dynap
 In command line script temperature is defined by **-t** flag. By default this value is 0 and usual
 2n order force constants are calculated. If the temperature is higher than 0 then a molecular
 dynamics (MD) simulation is calculated with LAMMPS using a supercell defined by **--dim** flag.
-By default the length of the MD if 20 ps with a relaxation time of 5 ps, but these parameters can
-be tweaked using **--total_time** and **--relaxation_time** flags.
+By default the length of the MD if 20 ps with time step of 0.001 ps and a relaxation time of 5 ps,
+but these parameters can be tweaked using **--total_time**, **--relaxation_time** and **--relaxation_time** flags.
 
 example for silicon::
 
-    $ phonolammps in.lammps --dim 2 2 2 -t 300 --total_time 50 --relaxation_time 10
+    $ phonolammps in.lammps --dim 2 2 2 -pa 0.0 0.5 0.5 0.5 0.0 0.5 0.5 0.5 0.0 -t 300 -p
 
 
 to have more control over the simulation and the renormalization precedure you will have to use
