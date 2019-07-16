@@ -212,13 +212,16 @@ def get_structure_from_txyz(file_name, key_file):
                 params.append(float(line.split()[1]))
     a, b, c, alpha, beta, gamma = params
 
-    # unitcell = [[0, a, 0],
-    #             [0, 0, c],
-    #             [b, 0, 0]]
+    a1 = a
+    b1 = b*np.cos(np.deg2rad(gamma))
+    b2 = np.sqrt(b**2 - b1**2)
+    c1 = c*np.cos(np.deg2rad(beta))
+    c2 = (b*c*np.cos(np.deg2rad(alpha)) - b1*c1)/b2
+    c3 = np.sqrt(c**2-c1**2-c2**2)
 
-    unitcell = [[a, 0, 0],
-                [0, b, 0],
-                [0, 0, c]]
+    unitcell = [[a1, 0,  0],
+                [b1, b2, 0],
+                [c1, c2, c3]]
 
     return PhonopyAtomsTinker(positions=np.array(coordinates, dtype=float),
                               symbols=atomic_elements,
@@ -242,17 +245,14 @@ def generate_tinker_txyz_file(structure):
 
 def generate_tinker_key_file(structure,
                              archive='overwrite',
-                             cutoff=20):
+                             wdv_cutoff=20):
 
     cell = structure.get_cell()
 
-    a = cell[0,0]
-    b = cell[1,1]
-    c = cell[2,2]
-
-    alpha = 90
-    beta = 90
-    gamma = 90
+    a, b, c = np.sqrt(np.dot(cell, cell.transpose()).diagonal())
+    alpha = np.rad2deg(np.arccos(np.vdot(cell[1], cell[2]) / b / c))
+    beta = np.rad2deg(np.arccos(np.vdot(cell[2], cell[0]) / c / a))
+    gamma = np.rad2deg(np.arccos(np.vdot(cell[0], cell[1]) / a / b))
 
     tinker_txt = '# Cell parameters\n'
     tinker_txt += 'a-axis  {}\n'.format(a)
@@ -264,7 +264,7 @@ def generate_tinker_key_file(structure,
     tinker_txt += 'GAMMA  {}\n'.format(gamma)
 
     tinker_txt += '# Other parameters\n'.format(c)
-    #tinker_txt += 'cutoff {}\n'.format(cutoff)
+    tinker_txt += 'VDW-CUTOFF {}\n'.format(wdv_cutoff)
     tinker_txt += 'archive {}\n'.format(archive)
 
     return tinker_txt
