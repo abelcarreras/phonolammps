@@ -98,7 +98,7 @@ if args.t is not None:
     structure = Structure(cell=unitcell.get_cell(),  # cell_matrix, lattice vectors in rows
                           scaled_positions=unitcell.get_scaled_positions(),
                           atomic_elements=unitcell.get_chemical_symbols(),
-                          primitive_matrix=np.identity(3))
+                          primitive_matrix=np.array(args.primitive_axis).reshape((3, 3)))
 
     structure.set_force_constants(ForceConstants(force_constants,
                                                  supercell=np.diag(args.dim)))
