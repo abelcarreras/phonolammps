@@ -181,6 +181,9 @@ class PhonoBase:
     def get_supercell_matrix(self):
         return self._supercell_matrix
 
+    def get_primitve_matrix(self):
+        return self._primitive_matrix
+
     def get_seekpath_bands(self, band_resolution=30):
         ranges = self.get_path_using_seek_path()['ranges']
         bands =[]
