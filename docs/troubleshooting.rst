@@ -5,7 +5,7 @@ Troubleshooting
 
 Check LAMMPS python API
 -----------------------
-If there is some problem with lammps installation this is a simple script that
+If there is some problem with LAMMPS installation this is a simple script that
 can help you to find it out. Run this script inside one of the example folders
 (where in.lammps file is placed) ::
 
@@ -38,7 +38,7 @@ Check LAMMPS calculations log
 -----------------------------
 
 By default LAMMPS logs are deactivated and not shown during the calculation. If issues appear it may be
-usefull to check LAMMPS force calculations logs. This is done by using **-logshow** flag. Ex: ::
+useful to check LAMMPS force calculations logs. This is done by using **-logshow** flag. Ex: ::
 
     $ phonolammps in.lammps --dim 2 2 2 --logshow
 

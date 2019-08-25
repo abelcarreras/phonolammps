@@ -3,7 +3,7 @@
 phonoLAMMPS
 ===========
 
-LAMMPS interface with phonopy.
+A simple LAMMPS interface with phonopy.
 
 .. toctree::
    :maxdepth: 1

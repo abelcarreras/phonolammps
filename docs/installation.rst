@@ -2,7 +2,7 @@
 
 Installation
 ============
-phonoLAMMPS can be installed directly from the source code or via PyPI repository.
+phonoLAMMPS can be installed directly from the source code (python package) or via PyPI repository.
 
 1) From source code ::
 
@@ -14,5 +14,7 @@ phonoLAMMPS can be installed directly from the source code or via PyPI repositor
     pip install phonoLAMMPS --user
 
 For convenience, you may want to copy (or link) the files inside scripts
-folder to a location included in **$PATH** environment variable
+folder to a location included in **$PATH** environment variable.
+
+*Note: Depending on your configuration or OS this may be done automatically.*
 
