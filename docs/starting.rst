@@ -138,3 +138,4 @@ primitive axis in matrix format written in one line (phonopy style), *-c FILENAM
 (the same written in LAMMPS input) in VASP format on the disk to be used in phonopy calculations, and *-p* requests to show
 the resulting phonon band structure in a matplotlib plot.
 The output of this script is a file named **FORCE_CONSTANTS** that contains the interatomic 2nd order force constants in phonopy format.
+

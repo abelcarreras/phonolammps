@@ -18,11 +18,20 @@ unit_factors = {'real': 4.336410389526464e-2,
 
 
 class PhonoBase:
+    """
+    Base class for PhonoLAMMPS
+    This class is not designed to be called directly.
+    To use it make a subclass and implement the following methods:
+
+    * __init__()
+    * get_forces()
+
+
+    """
 
     def get_path_using_seek_path(self):
 
-        """
-        Obtain the path in reciprocal space to plot the phonon band structure
+        """ Obtain the path in reciprocal space to plot the phonon band structure
 
         :return: dictionary with list of q-points and labels of high symmetry points
         """
@@ -154,7 +163,6 @@ class PhonoBase:
         Write the force constants in a file in phonopy plain text format
 
         :param filename: Force constants filename
-        :return:
         """
 
         force_constants = self.get_force_constants()
@@ -168,7 +176,6 @@ class PhonoBase:
         Write the force sets in a file in phonopy plain text format
 
         :param filename: Force sets filename
-        :return:
         """
 
         data_set = self.get_force_constants(include_data_set=True)[1]
@@ -176,9 +183,18 @@ class PhonoBase:
         write_FORCE_SETS(data_set, filename=filename)
 
     def get_unitcell(self):
+        """
+        Get unit cell structure
+
+        :return unitcell: unit cell 3x3 matrix (lattice vectors in rows)
+        """
         return self._structure
 
     def get_supercell_matrix(self):
+        """
+        Get the supercell matrix
+        :return supercell: the supercell 3x3 matrix (list of lists)
+        """
         return self._supercell_matrix
 
     def get_primitve_matrix(self):
@@ -199,13 +215,13 @@ class PhonoBase:
         """
         Write unit cell in VASP POSCAR type file
 
-        :param filename:
-        :return:
+        :param filename: POSCAR file name (Default: POSCAR)
         """
         poscar_txt = generate_VASP_structure(self._structure)
 
         with open(filename, mode='w') as f:
             f.write(poscar_txt)
+
 
 ################################
 #            LAMMPS            #
@@ -258,6 +274,12 @@ class Phonolammps(PhonoBase):
             exit()
 
     def get_units(self, commands_list):
+        """
+        Get the units label for LAMMPS "units" command from a list of LAMMPS input commands
+
+        :param commands_list: list of LAMMPS input commands (strings)
+        :return units: string containing the units
+        """
         for line in commands_list:
                 if line.startswith('units'):
                     return line.split()[1]
@@ -309,6 +331,7 @@ class Phonolammps(PhonoBase):
 
         return forces
 
+
 ################################
 #            TINKER            #
 ################################
@@ -330,8 +353,10 @@ class PhonoTinker(PhonoBase):
         :param supercell_matrix:  3x3 matrix supercell
         :param primitive cell:  3x3 matrix primitive cell
         :param displacement_distance: displacement distance in Angstroms
-        :param show_log: Set true to display lammps log info
-        :param show_progress: Set true to display progress of calculation
+        :param show_log: set true to display lammps log info
+        :param show_progress: set true to display progress of calculation
+        :param use_NAC: set true to use Non-Analytical corrections or not
+        :param symmetrize: set true to use symmetrization of the force constants
         """
 
         self._structure = get_structure_from_txyz(txyz_input_file, key_input_file)
@@ -360,7 +385,7 @@ class PhonoTinker(PhonoBase):
         """
         Calculate the forces of a supercell using tinker
         :param cell_with_disp: supercell (PhonopyAtoms) from which determine the forces
-        :return: numpy array matrix with forces of atoms [Natoms x 3]
+        :return array: numpy array matrix with forces of atoms [Natoms x 3]
         """
 
         import tempfile
@@ -375,7 +400,6 @@ class PhonoTinker(PhonoBase):
         supercell_wd = rebuild_connectivity_tinker(self._structure,
                                                    cell_with_disp,
                                                    self._supercell_matrix)
-
 
         tinker_input_file = open(temp_file_name + '.txyz', mode='w')
         tinker_input_file.write(generate_tinker_txyz_file(supercell_wd))

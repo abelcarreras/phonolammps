@@ -42,4 +42,3 @@ useful to check LAMMPS force calculations logs. This is done by using **-logshow
 
     $ phonolammps in.lammps --dim 2 2 2 --logshow
 
-

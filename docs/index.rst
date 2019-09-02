@@ -15,5 +15,5 @@ A simple LAMMPS interface with phonopy.
    installation
    starting
    advanced
+   api
    troubleshooting
-
