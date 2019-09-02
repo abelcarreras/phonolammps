@@ -193,6 +193,7 @@ class PhonoBase:
     def get_supercell_matrix(self):
         """
         Get the supercell matrix
+
         :return supercell: the supercell 3x3 matrix (list of lists)
         """
         return self._supercell_matrix
