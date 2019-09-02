@@ -84,7 +84,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 todo_include_todos = False
 
 
-autodoc_mock_imports = ['lammps']
+autodoc_mock_imports = ['lammps', 'lammps.lammps']
 
 # -- Options for HTML output ----------------------------------------------
 

@@ -292,7 +292,7 @@ class Phonolammps(PhonoBase):
         :return: numpy array matrix with forces of atoms [Natoms x 3]
         """
 
-        from lammps import lammps
+        import lammps
 
         supercell_sizes = np.diag(self._supercell_matrix)
 
@@ -300,7 +300,7 @@ class Phonolammps(PhonoBase):
         if not self._show_log:
             cmd_list += ['-echo', 'none', '-screen', 'none']
 
-        lmp = lammps(cmdargs=cmd_list)
+        lmp = lammps.lammps(cmdargs=cmd_list)
         # lmp.file(self._lammps_input_file)
         lmp.commands_list(self._lammps_commands_list)
         lmp.command('replicate {} {} {}'.format(*supercell_sizes))
