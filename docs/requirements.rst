@@ -14,6 +14,9 @@ Mandatory requirements
 - phonopy (https://atztogo.github.io/phonopy/)
 - LAMMPS python interface (https://lammps.sandia.gov/doc/Python_library.html)
 
+*Note: LAMMPS python interface may need to be installed manually from LAMMPS source.
+Check LAMMPS manual for further information*
+
 Optional requirements for phonon band structure preview
 -------------------------------------------------------
 - matplotlib

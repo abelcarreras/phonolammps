@@ -26,7 +26,6 @@ class PhonoBase:
     * __init__()
     * get_forces()
 
-
     """
 
     def get_path_using_seek_path(self):
@@ -39,12 +38,11 @@ class PhonoBase:
         try:
             import seekpath
 
-            structure = self._structure
-            cell = structure.get_cell()
-            positions = structure.get_scaled_positions()
-            numbers = np.unique(structure.get_chemical_symbols(), return_inverse=True)[1]
-            structure = (cell, positions, numbers)
-            path_data = seekpath.get_path(structure)
+            cell = self._structure.get_cell()
+            positions = self._structure.get_scaled_positions()
+            numbers = np.unique(self._structure.get_chemical_symbols(), return_inverse=True)[1]
+
+            path_data = seekpath.get_path((cell, positions, numbers))
 
             labels = path_data['point_coords']
 
@@ -71,6 +69,7 @@ class PhonoBase:
             phonon = get_phonon(self._structure,
                                 setup_forces=False,
                                 super_cell_phonon=self._supercell_matrix,
+                                primitive_matrix=self._primitive_matrix,
                                 NAC=self._NAC,
                                 symmetrize=self._symmetrize)
 
@@ -102,6 +101,8 @@ class PhonoBase:
     def plot_phonon_dispersion_bands(self):
         """
         Plot phonon band structure using seekpath automatic k-path
+        Warning: The labels may be wrong if the structure is not standarized
+
         """
 
         import matplotlib.pyplot as plt
@@ -238,6 +239,8 @@ class Phonolammps(PhonoBase):
                  use_NAC=False,
                  symmetrize=True):
         """
+        Main PhonoLAMMPS class
+
         :param lammps_input: LAMMPS input file name or list of commands
         :param supercell_matrix:  3x3 matrix supercell
         :param primitive cell:  3x3 matrix primitive cell
@@ -289,6 +292,7 @@ class Phonolammps(PhonoBase):
     def get_forces(self, cell_with_disp):
         """
         Calculate the forces of a supercell using lammps
+
         :param cell_with_disp: supercell from which determine the forces
         :return: numpy array matrix with forces of atoms [Natoms x 3]
         """
@@ -302,7 +306,6 @@ class Phonolammps(PhonoBase):
             cmd_list += ['-echo', 'none', '-screen', 'none']
 
         lmp = lammps.lammps(cmdargs=cmd_list)
-        # lmp.file(self._lammps_input_file)
         lmp.commands_list(self._lammps_commands_list)
         lmp.command('replicate {} {} {}'.format(*supercell_sizes))
         lmp.command('run 0')
@@ -350,6 +353,9 @@ class PhonoTinker(PhonoBase):
                  use_NAC=False,
                  symmetrize=True):
         """
+        Experimental class to use Tinker to calculate forces, can be used
+        as an example to how to expand phonoLAMMPS to other software
+
         :param txyz_input_file:  TXYZ input file name (see example)
         :param supercell_matrix:  3x3 matrix supercell
         :param primitive cell:  3x3 matrix primitive cell
@@ -444,7 +450,7 @@ if __name__ == '__main__':
     phonon = get_phonon(structure,
                         setup_forces=False,
                         super_cell_phonon=[[2, 0, 0], [0, 2, 0], [0, 0, 2]],
-                        #NAC=self._NAC,
+                        NAC=False,
                         symmetrize=True)
 
 

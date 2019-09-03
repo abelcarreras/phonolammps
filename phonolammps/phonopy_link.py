@@ -23,15 +23,34 @@ class PhonopyAtomsTinker(PhonopyAtoms):
 
 
 class ForceConstants:
+    """
+    Define Force constants object
+    """
     def __init__(self, force_constants, supercell=np.identity(3)):
+        """
+        Initialize force constants
+
+        :param force_constants: array matrix containing the force constants (phonopy format)
+        :param supercell: 3x3 array (or list of lists) containing the supercell definition
+        """
 
         self._force_constants = np.array(force_constants)
         self._supercell = np.array(supercell)
 
     def get_array(self):
+        """
+        get the force constants array in phonopy format
+
+        :return: force constants array
+        """
         return self._force_constants
 
     def get_supercell(self):
+        """
+        get the supercell (respect to the unit cell) in which the force constants are defined
+
+        :return: 3x3 array containing the supercell
+        """
         return self._supercell
 
 
@@ -39,11 +58,22 @@ def get_phonon(structure,
                NAC=False,
                setup_forces=True,
                super_cell_phonon=np.identity(3),
-               primitive_axis=np.identity(3),
+               primitive_matrix=np.identity(3),
                symmetrize=True):
+    """
+    Return a phonopy phonon object (instance of the class Phonon)
+    
+    :param structure: unit cell matrix (lattice vectors in rows)
+    :param NAC: (Bool) activate/deactivate Non-analytic corrections
+    :param setup_forces: (Bool) decide if pre-calculate harmonic forces in phonon object
+    :param super_cell_phonon: 3x3 array containing the supercell to be used to calculate the force constants
+    :param primitive_matrix: 3x3 array containing the primitive axis (in rows) which define the primitive cell
+    :param symmetrize: decide if symmetrize the force constants
+    :return: phonopy phonon object
+    """
 
     phonon = Phonopy(structure, super_cell_phonon,
-                     primitive_matrix=primitive_axis,
+                     primitive_matrix=primitive_matrix,
                      symprec=1e-5, is_symmetry=symmetrize)
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
@@ -76,10 +106,22 @@ def get_phonon(structure,
 def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants, supercell,
                                    NAC=False, band_resolution=30, band_connection=False,
                                    primitive_matrix=np.identity(3)):
+    """
+    Get the phonon dispersion bands in phonopy format
 
+    :param structure: unit cell matrix (lattice vectors in rows)
+    :param bands_ranges: define the path in the reciprocal space (phonopy format)
+    :param force_constants: force constants array ( in phonopy format)
+    :param supercell: 3x3 array containing the supercell to be used to calculate the force constants
+    :param NAC: (Bool) activate/deactivate Non-analytic corrections
+    :param band_resolution: define number of points in path in the reciprocal space
+    :param band_connection: decide if bands will be all connected or in segments
+    :param primitive_matrix: 3x3 array containing the primitive axis (in rows) which define the primitive cell
+    :return:
+    """
     phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
                         super_cell_phonon=supercell,
-                        primitive_axis=primitive_matrix)
+                        primitive_matrix=primitive_matrix)
 
     phonon.set_force_constants(force_constants)
 
@@ -92,3 +134,18 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants, sup
     phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
 
     return phonon.get_band_structure()
+
+
+def get_primitive_structure(structure, primitive_matrix=np.eye(3)):
+    from phonopy.structure.cells import get_primitive
+    return get_primitive(structure, primitive_matrix)
+
+
+def standarize_structure(structure):
+    from phonopy.structure.spglib import standardize_cell
+
+    lattice, positions, numbers = standardize_cell(structure, to_primitive=False, no_idealize=False, symprec=1e-5)
+
+    return PhonopyAtoms(positions=positions,
+                        numbers=numbers,
+                        cell=lattice)

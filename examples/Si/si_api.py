@@ -27,6 +27,7 @@ print(force_constants)
 
 structure = phlammps.get_unitcell()
 
+
 # define structure for dynaphopy
 dp_structure = Structure(cell=structure.get_cell(),  # cell_matrix, lattice vectors in rows
                          scaled_positions=structure.get_scaled_positions(),

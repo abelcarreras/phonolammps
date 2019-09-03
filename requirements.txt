@@ -5,7 +5,7 @@
 # mandatory
 numpy>=1.8.2
 phonopy
-# lammps
+# lammps (Need to be installed manually from LAMMPS source)
 
 # (optional) for plotting phonon band structure
 matplotlib
