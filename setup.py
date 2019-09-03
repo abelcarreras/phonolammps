@@ -22,6 +22,6 @@ setup(name='phonoLAMMPS',
       author_email='abelcarreras83@gmail.com',
       packages=['phonolammps'],
       scripts=['scripts/phonolammps'],
-      requires=['phonopy', 'numpy'],
+      install_requires=['phonopy', 'numpy', 'matplotlib', 'seekpath', 'dynaphopy'],
       license='MIT License'
       )
