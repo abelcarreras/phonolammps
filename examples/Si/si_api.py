@@ -60,4 +60,4 @@ calculation.plot_renormalized_phonon_dispersion_bands()
 
 # Print renormalized force constants
 print('renormalized force constants at 300K')
-print(renormalized_force_constants)
+print(renormalized_force_constants.get_array())
