@@ -19,11 +19,13 @@ phlammps = Phonolammps('in.lammps',
 
 phlammps.plot_phonon_dispersion_bands()
 
-force_constants = phlammps.get_force_constants()
+# set force constants for dynaphopy
+force_constants = ForceConstants(phlammps.get_force_constants(),
+                                 supercell=phlammps.get_supercell_matrix())
 
 # Print harmonic force constants
 print('harmonic force constants')
-print(force_constants)
+print(force_constants.get_array())
 
 structure = phlammps.get_unitcell()
 
@@ -33,9 +35,7 @@ dp_structure = Structure(cell=structure.get_cell(),  # cell_matrix, lattice vect
                          scaled_positions=structure.get_scaled_positions(),
                          atomic_elements=structure.get_chemical_symbols(),
                          primitive_matrix=phlammps.get_primitve_matrix(),
-                         force_constants=ForceConstants(force_constants,
-                                                        supercell=phlammps.get_supercell_matrix()))
-
+                         force_constants=force_constants)
 
 # calculate trajectory for dynaphopy with lammps
 trajectory = generate_lammps_trajectory(dp_structure, 'in.lammps',
@@ -57,6 +57,11 @@ renormalized_force_constants = calculation.get_renormalized_force_constants()
 
 # Print phonon band structure
 calculation.plot_renormalized_phonon_dispersion_bands()
+
+# Plot linewidths vs frequencies (interpolated to a mesh 20x20x20)
+# calculation.parameters.mesh_phonopy = [20, 20, 20]
+# calculation.plot_frequencies_vs_linewidths()
+# calculation.write_mesh_data()
 
 # Print renormalized force constants
 print('renormalized force constants at 300K')
