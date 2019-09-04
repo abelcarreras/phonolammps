@@ -7,7 +7,9 @@ Check LAMMPS python API
 -----------------------
 If there is some problem with LAMMPS installation this is a simple script that
 can help you to find it out. Run this script inside one of the example folders
-(where in.lammps file is placed) ::
+(where in.lammps file is placed)
+
+.. code-block:: python
 
     from lammps import lammps
 
@@ -15,7 +17,9 @@ can help you to find it out. Run this script inside one of the example folders
     lmp1.file("in.lammps")
     lmp1.close()
 
-if everything works as expected you should get an output like this ::
+if everything works as expected you should get an output like this
+
+.. code-block:: python
 
     LAMMPS (15 May 2019)
     OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:88)

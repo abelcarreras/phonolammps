@@ -16,7 +16,10 @@ The procedure to obtain the force constants from LAMMPS forces is the following:
 Creating an instance of the main phonoLAMMPS class. In this call you have to introduce a lammps
 input that contains the definition of the crystal unit cell the *unitcell* and *empirical potential/s*.
 For this you have two options:
-2a) Use a LAMMPS input file (in.lammps) ::
+
+2a. Use a LAMMPS input file (in.lammps)
+
+.. code-block:: python
 
     phlammps = Phonolammps('in.lammps',
                            supercell_matrix=[[2, 0, 0],
@@ -30,7 +33,9 @@ Where *supercell_matrix* defines the supercell expansion used to calculate the f
 using the finite displacements method, and *primitive_matrix* (optional) defines the primitive cell axis matrix.
 If *primitive_matrix* is not defined, identity matrix is used (primitive cell = unit cell).
 
-2b) Use a python list containing LAMMPS input commands (one command per line) ::
+2b. Use a python list containing LAMMPS input commands (one command per line)
+
+.. code-block:: python
 
     list_of_commands = open('in.lammps').read().split('\n')
     phlammps = Phonolammps(list_of_commands,
@@ -43,14 +48,18 @@ If *primitive_matrix* is not defined, identity matrix is used (primitive cell = 
 
 This second option may be handy if you want to generate/modify LAMMPS commands in a python script.
 
-3) Get the data needed for phonopy ::
+3) Get the data needed for phonopy
+
+.. code-block:: python
 
     unitcell = phlammps.get_unitcell()
     force_constants = phlammps.get_force_constants()
     supercell_matrix = phlammps.get_supercell_matrix()
 
 
-4) From this you have all the information you need for phonopy calculations ::
+4) From this you have all the information you need for phonopy calculations
+
+.. code-block:: python
 
     from phonopy import Phonopy
     phonon = Phonopy(unitcell,
