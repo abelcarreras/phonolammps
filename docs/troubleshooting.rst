@@ -17,9 +17,7 @@ can help you to find it out. Run this script inside one of the example folders
     lmp1.file("in.lammps")
     lmp1.close()
 
-if everything works as expected you should get an output like this
-
-.. code-block:: python
+if everything works as expected you should get an output like this ::
 
     LAMMPS (15 May 2019)
     OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:88)
