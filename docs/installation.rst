@@ -16,5 +16,6 @@ phonoLAMMPS can be installed directly from the source code (python package) or v
 For convenience, you may want to copy (or link) the files inside scripts
 folder to a location included in **$PATH** environment variable.
 
-*Note: Depending on your configuration or OS this may be done automatically.*
+.. Note::
+    Depending on your configuration or OS this may be done automatically.
 

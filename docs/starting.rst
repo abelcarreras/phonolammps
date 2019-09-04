@@ -88,10 +88,12 @@ example: ::
 
     neighbor	0.3 bin
 
-*Notice that run command, as well as other MD related commands (thermostat, velocities, etc..) should not
+Notice that run command, as well as other MD related commands (thermostat, velocities, etc..) should not
 be included in the input file.
-Note: In this example **read data** command is used to define the atoms
-coordinates in a different file (refer to LAMMPS manual for further information).
+
+.. note::
+    In this example **read data** command is used to define the atoms
+    coordinates in a different file (refer to LAMMPS manual for further information).
 
 *Phonolammps* script uses *argparse* to provide a clean command line interface using flags
 All options available are displayed by using **-h** ::
