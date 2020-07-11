@@ -83,7 +83,7 @@ def get_phonon(structure,
             phonon.set_force_constants(structure.get_force_constants().get_array())
         elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
-            phonon.produce_force_constants(computation_algorithm="svd")
+            phonon.produce_force_constants()
             structure.set_force_constants(ForceConstants(phonon.get_force_constants(),
                                                          supercell=structure.get_force_sets().get_supercell()))
         else:
@@ -131,9 +131,21 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants, sup
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
-    phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
 
-    return phonon.get_band_structure()
+    try:
+        phonon.run_band_structure(bands, is_band_connection=band_connection, with_eigenvectors=True)
+        bands_dict = phonon.get_band_structure_dict()
+        bands_phonopy = (bands_dict['qpoints'],
+                         bands_dict['distances'],
+                         bands_dict['frequencies'],
+                         bands_dict['eigenvectors'])
+
+    except AttributeError:
+        # phonopy 1.9.x+ support
+        phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
+        bands_phonopy = phonon.get_band_structure()
+
+    return bands_phonopy
 
 
 def get_primitive_structure(structure, primitive_matrix=np.eye(3)):

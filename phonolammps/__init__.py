@@ -1,4 +1,4 @@
-__version__ = '0.5.2'
+__version__ = '0.6.0'
 
 import numpy as np
 
@@ -104,7 +104,6 @@ class PhonoBase:
         Warning: The labels may be wrong if the structure is not standarized
 
         """
-
         import matplotlib.pyplot as plt
 
         def replace_list(text_string):
