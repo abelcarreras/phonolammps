@@ -3,7 +3,8 @@
 
 phonoLAMMPS
 ===========
-Calculate the 2nd order force constants using phonopy and LAMMPS.
+Calculate the 2nd order force constants using phonopy and LAMMPS.  
+Online manual: https://phonolammps.readthedocs.io
 
 Main features
 -------------
