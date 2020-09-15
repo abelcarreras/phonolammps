@@ -67,9 +67,13 @@ band structure (requires seekpath).
 Additionally phonoLAMMPS allows to easily calculate finite temperature force constants 
 from molecular dynamics by quasiparticle theory (requires dynaphopy).
 ```
-# phonolammps in.lammps --dim 3 3 3  -c POSCAR_unitcell -p -t 300       (at 300 K)
+# phonolammps in.lammps --dim 2 2 2  -c POSCAR_unitcell -p -t 300       (at 300 K)
 ```
-
+The obtained *FORCE_CONSTANTS* and *POSCAR_unitcell* can be used in phonopy using 
+**--readfc** option for more advanced calculations.
+ ```
+# phonopy --dim="2 2 2" --readfc -c POSCAR_unitcell band.conf
+```
 
 Python API 
 ----------

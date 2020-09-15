@@ -1,4 +1,4 @@
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 import numpy as np
 
@@ -223,6 +223,24 @@ class PhonoBase:
         with open(filename, mode='w') as f:
             f.write(poscar_txt)
 
+    def get_phonopy_phonon(self):
+        """
+        Return phonopy phonon object with unitcell, primitive cell and
+        the force constants set.
+
+        :return:
+        """
+
+        phonon = get_phonon(self._structure,
+                            setup_forces=False,
+                            super_cell_phonon=self._supercell_matrix,
+                            primitive_matrix=self._primitive_matrix,
+                            NAC=self._NAC,
+                            symmetrize=self._symmetrize)
+
+        phonon.set_force_constants(self.get_force_constants())
+
+        return phonon
 
 ################################
 #            LAMMPS            #

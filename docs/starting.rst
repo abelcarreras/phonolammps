@@ -147,6 +147,11 @@ A simple example for crystalline silicon using a 2x2x2 supercell would be ::
 where **in.lammps** is a LAMMPS input containing the unit cell, *--dim* defines the supercell, *--pa* are the
 primitive axis in matrix format written in one line (phonopy style), *-c FILENAME* (optional) requests to write the unitcell
 (the same written in LAMMPS input) in VASP format on the disk to be used in phonopy calculations, and *-p* requests to show
-the resulting phonon band structure in a matplotlib plot.
+a preview of the phonon band structure in a matplotlib plot.
 The output of this script is a file named **FORCE_CONSTANTS** that contains the interatomic 2nd order force constants in phonopy format.
+
+To use the obtained **FORCE_CONSTANTS** in more advanced calculations, or to have more control on the displayed data
+it is recommended to use PHONOPY by reading the **FORCE_CONSTANTS** file using **--readfc** option ::
+
+    phonopy --dim="2 2 2" --pa="0.0 0.5 0.5 0.5 0.0 0.5 0.5 0.5 0.0" --readfc -c POSCAR_unitcell band.conf
 
