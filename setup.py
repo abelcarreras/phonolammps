@@ -17,6 +17,7 @@ def get_version_number():
 setup(name='phonoLAMMPS',
       version=get_version_number(),
       description='phonoLAMMPS module',
+      long_description=open('README.md').read(),
       author='Abel Carreras',
       url='https://github.com/abelcarreras/phonolammps',
       author_email='abelcarreras83@gmail.com',
