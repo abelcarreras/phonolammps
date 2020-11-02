@@ -74,7 +74,33 @@ parser.add_argument('--use_NAC', action='store_true',
 parser.add_argument('--write_force_sets', action='store_true',
                    help='write FORCE_SETS file')
 
+parser.add_argument('--version', action='store_true',
+                   help='print version')
+
+
 args = parser.parse_args()
+
+
+if args.version:
+    from lammps import lammps
+    from datetime import date
+    import sys
+    import phonopy
+    from phonolammps import __version__ as ph_lammps_version
+
+    lmp = lammps(cmdargs=['-screen', 'none'])
+    version_date = str(lammps.version(lmp))
+
+    date_lammps = date(int(version_date[0:4]),
+                       int(version_date[4:6]),
+                       int(version_date[6:8]))
+
+    print('PHONOLAMMPS: {}'.format(ph_lammps_version))
+    print('LAMMPS: {}'.format(date_lammps.strftime("%d %B %Y")))
+    print('PHONOPY: {}'.format(phonopy.__version__))
+    print('PYTHON: {}'.format(sys.version.split('\n')[0]))
+
+    exit()
 
 phlammps = Phonolammps(args.lammps_input_file,
                        supercell_matrix=np.diag(args.dim),
@@ -84,6 +110,8 @@ phlammps = Phonolammps(args.lammps_input_file,
                        show_progress=True,
                        use_NAC=args.use_NAC,
                        symmetrize=not(args.no_symmetrize))
+
+
 
 # If temperature is set then do dynaphopy calculation
 if args.t is not None:
