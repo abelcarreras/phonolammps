@@ -1,4 +1,4 @@
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 import numpy as np
 
@@ -328,8 +328,14 @@ class Phonolammps(PhonoBase):
         lmp.command('run 0')
 
         na = lmp.get_natoms()
-        xc = lmp.gather_atoms("x", 1, 3)
-        reference = np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))
+        # xc = lmp.gather_atoms("x", 1, 3)
+        # reference2 = np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))
+
+        id = lmp.extract_atom("id", 0)
+        id = np.array([id[i]-1 for i in range(na)], dtype=int)
+
+        xp = lmp.extract_atom("x", 3)
+        reference = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)[id, :]
 
         template = get_correct_arrangement(reference, self._structure, self._supercell_matrix)
         indexing = np.argsort(template)
@@ -344,10 +350,17 @@ class Phonolammps(PhonoBase):
 
         lmp.command('run 0')
 
-        forces = lmp.gather_atoms("f", 1, 3)
+        # forces2 = lmp.gather_atoms("f", 1, 3)
+        # forces2 = np.array([forces2[i] for i in range(na * 3)], dtype=float).reshape((na, 3))#[indexing,:]
 
-        forces = np.array([forces[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :]
-        forces = forces * unit_factors[self.units]
+        id = lmp.extract_atom("id", 0)
+        id = np.array([id[i]-1 for i in range(na)], dtype=int)
+
+        fp = lmp.extract_atom("f", 3)
+        forces = np.array([[fp[i][0], fp[i][1], fp[i][2]] for i in range(na)], dtype=float)[id, :]
+
+        forces = forces[indexing, :] * unit_factors[self.units]
+
         lmp.close()
 
         return forces

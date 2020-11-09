@@ -98,29 +98,37 @@ def get_structure_from_lammps(command_list, show_log=False):
 
     na = lmp.get_natoms()
 
-    xlo =lmp.extract_global("boxxlo", 1)
-    xhi =lmp.extract_global("boxxhi", 1)
-    ylo =lmp.extract_global("boxylo", 1)
-    yhi =lmp.extract_global("boxyhi", 1)
-    zlo =lmp.extract_global("boxzlo", 1)
-    zhi =lmp.extract_global("boxzhi", 1)
-    xy =lmp.extract_global("xy", 1)
-    yz =lmp.extract_global("yz", 1)
-    xz =lmp.extract_global("xz", 1)
+    try:
+        xlo =lmp.extract_global("boxxlo", 1)
+        xhi =lmp.extract_global("boxxhi", 1)
+        ylo =lmp.extract_global("boxylo", 1)
+        yhi =lmp.extract_global("boxyhi", 1)
+        zlo =lmp.extract_global("boxzlo", 1)
+        zhi =lmp.extract_global("boxzhi", 1)
+        xy =lmp.extract_global("xy", 1)
+        yz =lmp.extract_global("yz", 1)
+        xz =lmp.extract_global("xz", 1)
+
+    except UnboundLocalError:
+        boxlo, boxhi, xy, yz, xz, periodicity, box_change = lmp.extract_box()
+        xlo, ylo, zlo = boxlo
+        xhi, yhi, zhi = boxhi
 
     unitcell = np.array([[xhi-xlo, xy,  xz],
-                           [0,  yhi-ylo,  yz],
-                           [0,   0,  zhi-zlo]]).T
+                         [0,  yhi-ylo,  yz],
+                         [0,   0,  zhi-zlo]]).T
 
-    positions = lmp.gather_atoms("x", 1, 3)
-#    type_mass = lmp.gather_atoms("mass", 1, 1)
+    # positions = lmp.gather_atoms("x", 1, 3)
+    # positions = np.array([positions[i] for i in range(na * 3)]).reshape((na, 3))
+
     type_mass = lmp.extract_atom("mass", 2)
-
     type = lmp.gather_atoms("type", 0, 1)
 
-    positions = np.array([positions[i] for i in range(na * 3)]).reshape((na, 3))
-    masses = np.array([type_mass[type[i]] for i in range(na)])
+    masses = np.array([type_mass[type[i]] for i in range(na)], dtype=float)
     symbols = [mass_to_symbol(masses[i]) for i in range(na)]
+
+    xp = lmp.extract_atom("x", 3)
+    positions = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)
 
     return PhonopyAtoms(positions=positions,
                         masses=masses,
