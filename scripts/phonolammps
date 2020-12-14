@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-import numpy as np
-import argparse
-import os
-import sys
 from contextlib import contextmanager
 from phonolammps import Phonolammps
+from lammps import lammps
+from datetime import date
+import numpy as np
+import argparse
+import os, sys
+import phonopy
+
 
 # Define function to silence output
 @contextmanager
@@ -28,7 +31,7 @@ def show_stdout():
 parser = argparse.ArgumentParser(description='phonoLAMMPS options')
 
 parser.add_argument('lammps_input_file', metavar='lammps_file', type=str,
-                    help='lammps input file')
+                    help='lammps input file', nargs='?')
 
 parser.add_argument('-o', metavar='file', type=str, default='FORCE_CONSTANTS',
                     help='force constants output file [default: FORCE_CONSTANTS]')
@@ -81,11 +84,10 @@ parser.add_argument('--version', action='store_true',
 args = parser.parse_args()
 
 
+
+#raise argparse.ArgumentError(args, 'message')
+
 if args.version:
-    from lammps import lammps
-    from datetime import date
-    import sys
-    import phonopy
     from phonolammps import __version__ as ph_lammps_version
 
     lmp = lammps(cmdargs=['-screen', 'none'])
@@ -101,6 +103,9 @@ if args.version:
     print('PYTHON: {}'.format(sys.version.split('\n')[0]))
 
     exit()
+
+if args.lammps_input_file is None:
+    parser.error("too few arguments")
 
 phlammps = Phonolammps(args.lammps_input_file,
                        supercell_matrix=np.diag(args.dim),
