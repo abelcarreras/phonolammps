@@ -1,6 +1,7 @@
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 
 import numpy as np
+import warnings
 
 from phonopy.file_IO import write_FORCE_CONSTANTS, write_force_constants_to_hdf5, write_FORCE_SETS
 from phonolammps.arrange import get_correct_arrangement, rebuild_connectivity_tinker
@@ -76,10 +77,13 @@ class PhonoBase:
             phonon.get_displacement_dataset()
             phonon.generate_displacements(distance=self._displacement_distance)
             cells_with_disp = phonon.get_supercells_with_displacements()
-
-            #cells_with_disp = [cell.get_positions() for cell in cells_with_disp]
-
             data_set = phonon.get_displacement_dataset()
+
+            # Check forces for non displaced supercell
+            forces_supercell = self.get_forces(phonon.get_supercell())
+            if np.max(forces_supercell) > 1e-1:
+                warnings.warn('Large atomic forces found for non displaced structure: '
+                              '{}. Make sure your unit cell is properly optimized'.format(np.max(forces_supercell)))
 
             # Get forces from lammps
             for i, cell in enumerate(cells_with_disp):
