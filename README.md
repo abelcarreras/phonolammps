@@ -5,7 +5,7 @@
 
 phonoLAMMPS
 ===========
-Calculate the 2nd order force constants using phonopy and LAMMPS.  
+Calculate the harmonic interatomic force constants using phonopy and LAMMPS.  
 Online manual: https://phonolammps.readthedocs.io
 
 Main features
@@ -14,7 +14,7 @@ Main features
 - Python API fully compatible with phonopy
 - Use of official LAMMPS python interface
 - Simple and easy to use
-- New! Finite temperature force constants using DynaPhoPy
+- Finite temperature force constants using DynaPhoPy
 
 Requirements
 ------------
