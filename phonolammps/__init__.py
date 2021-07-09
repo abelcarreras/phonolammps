@@ -1,4 +1,4 @@
-__version__ = '0.7.2'
+__version__ = '0.7.3'
 
 import numpy as np
 import warnings
@@ -130,9 +130,6 @@ class PhonoBase:
 
         for i, freq in enumerate(_bands[1]):
             plt.plot(_bands[1][i], _bands[2][i], color='r')
-
-            # plt.axes().get_xaxis().set_visible(False)
-        plt.axes().get_xaxis().set_ticks([])
 
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
