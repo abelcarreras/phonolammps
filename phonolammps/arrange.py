@@ -84,7 +84,7 @@ def get_correct_arrangement(reference, structure, supercell_matrix):
 
 def rebuild_connectivity_tinker(structure, supercell, matrix):
 
-    from phonolammps.phonopy_link import PhonopyAtomsTinker
+    from phonolammps.phonopy_link import PhonopyAtomsConnect
 
     connectivity = structure.get_connectivity()
     atom_types = structure.get_atom_types()
@@ -136,9 +136,9 @@ def rebuild_connectivity_tinker(structure, supercell, matrix):
 
                     l +=1
 
-    return PhonopyAtomsTinker(positions=np.dot(positions_s, cell),
-                              symbols=symbol_s,
-                              cell=cell,
-                              connectivity=connectivity_s,
-                              atom_types=atom_types_s)
+    return PhonopyAtomsConnect(positions=np.dot(positions_s, cell),
+                               symbols=symbol_s,
+                               cell=cell,
+                               connectivity=connectivity_s,
+                               atom_types=atom_types_s)
 

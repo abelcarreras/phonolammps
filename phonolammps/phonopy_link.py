@@ -4,8 +4,8 @@ from phonopy.file_IO import parse_BORN
 import numpy as np
 
 
-# Subclassing PhonopyAtoms to include connectivity & atom types (for tinker)
-class PhonopyAtomsTinker(PhonopyAtoms):
+# Subclassing PhonopyAtoms to include connectivity & atom types (for tinker & gromacs)
+class PhonopyAtomsConnect(PhonopyAtoms):
     def __init__(self, **kwargs):
         # Extract connectivity & atom types
         connectivity = kwargs.pop('connectivity', None)
@@ -13,7 +13,7 @@ class PhonopyAtomsTinker(PhonopyAtoms):
         self._connectivity = connectivity
         self._atom_types = atom_types
 
-        super(PhonopyAtomsTinker, self).__init__(**kwargs)
+        super(PhonopyAtomsConnect, self).__init__(**kwargs)
 
     def get_connectivity(self):
         return self._connectivity

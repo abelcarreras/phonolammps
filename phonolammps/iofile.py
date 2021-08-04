@@ -287,3 +287,191 @@ def parse_tinker_forces(output):
         gradient.append(d.split()[1:4])
     forces = -np.array(gradient, dtype=float)
     return forces
+
+
+def get_connectivity(positions, symbols):
+    import openbabel
+
+    obConversion = openbabel.OBConversion()
+    obConversion.SetInAndOutFormats("xyz", "mol2")
+
+    mol = openbabel.OBMol()
+
+    xyz_file = '{}\n\n'.format(len(symbols))
+
+    for s, c in zip(symbols, positions):
+        xyz_file += '{} '.format(s) + '{:15.10f} {:15.10f} {:15.10f}\n'.format(*c)
+
+
+    obConversion.ReadString(mol, xyz_file)
+
+    conn_index = []
+    for i in range(mol.NumBonds()):
+        conn_index.append((mol.GetBond(i).GetBeginAtomIdx() - 1, mol.GetBond(i).GetEndAtomIdx() - 1))
+
+    return conn_index
+
+
+def get_structure_from_g96(filename):
+
+    coordinates = []
+    atom_types = []
+
+    with open(filename, 'r') as f:
+        for i in range(4):
+            f.readline()
+
+        while True:
+            line = f.readline()
+            if 'END' in line:
+                break
+            coordinates.append(line.split()[4:7])
+            atom_types.append(line.split()[2])
+
+        f.readline()
+        unitcell_list = np.array(f.readline().split(), dtype=float)
+
+    coordinates = np.array(coordinates, dtype=float) * 10
+
+    uc = np.zeros((3, 3))
+    uc[0,0], uc[1,1], uc[2,2], uc[0,1], uc[0,2], uc[1,0], uc[1,2], uc[2,0], uc[2,1] = unitcell_list
+    uc *= 10
+
+    def types_to_element(types):
+        elements = []
+        for t in types:
+            elements.append(''.join([i for i in t if not i.isdigit()]))
+
+        return elements
+
+    atomic_elements = types_to_element(atom_types)
+
+    return PhonopyAtomsConnect(positions=coordinates,
+                               symbols=atomic_elements,
+                               cell=uc,
+                               connectivity=get_connectivity(np.array(coordinates, dtype=float), atomic_elements),
+                               atom_types=atom_types)
+
+
+def get_structure_from_gro(file_name):
+
+    gro_file = open(file_name, 'r')
+
+    coordinates = []
+    atom_types = []
+
+    gro_file.readline()
+    number_of_atoms = int(gro_file.readline().split()[0])
+
+    for i in range(number_of_atoms):
+        line = gro_file.readline().split()
+
+        coordinates.append(line[3:6])
+        # atomic_elements.append(line[1])
+        atom_types.append(line[1])
+
+    coordinates = np.array(coordinates, dtype=float) * 10
+
+    uc = np.zeros((3, 3))
+    uc[0,0], uc[1,1], uc[2,2], uc[0,1], uc[0,2], uc[1,0], uc[1,2], uc[2,0], uc[2,1] = gro_file.readline().split()
+    uc *= 10
+
+    # [[8.194, 0.000, 0.00],
+    # [ 0.000, 5.968, 0.00],
+    # [-4.790, 0.000, 7.22]]
+    #   0.81940   0.59680   0.72231
+    #   0.00000   0.00000   0.00000
+    #   0.00000   0.34004   0.00000
+    #  v1(x) v2(y) v3(z)
+    #  v1(y) v1(z) v2(x)
+    #  v2(z) v3(x) v3(y)
+
+
+    gro_file.close()
+
+    def types_to_element(types):
+        elements = []
+        for t in types:
+            elements.append(''.join([i for i in t if not i.isdigit()]))
+
+        return elements
+
+    atomic_elements = types_to_element(atom_types)
+
+
+    return PhonopyAtomsConnect(positions=coordinates,
+                               symbols=atomic_elements,
+                               cell=uc,
+                               connectivity=get_connectivity(np.array(coordinates, dtype=float), atomic_elements),
+                               atom_types=atom_types)
+
+def generate_gro(structure_wd, structure_uc, filename):
+    n_at_uc = len(structure_uc.symbols)
+    n_at = len(structure_wd.symbols)
+
+    index_list = []
+    for i in range(n_at_uc):
+        for j in range(n_at_uc):
+            index_list.append(j * n_at // n_at_uc + i)
+            # print(index_list[-1])
+
+    with open(filename, 'w') as f:
+        f.write('cell with displacements\n')
+        f.write('  {}\n'.format(n_at))
+        for i in range(n_at):
+            iuc = np.mod(i, n_at_uc)
+            # pre_lie = '  {:3}LIG {:>6} {:4}'.format(iuc+1, structure_wd.get_atom_types()[i], i+1)
+            pre_lie = '  {:3}LIG {:>6} {:4}'.format(i // n_at_uc + 1, structure_uc.get_atom_types()[iuc], i + 1)
+
+            # pos_line = ' {:7.3f} {:7.3f} {:7.3f} '.format(*structure_wd.positions[i]/10)
+            pos_line = ' {:7.3f} {:7.3f} {:7.3f} '.format(*structure_wd.positions[index_list[i]] / 10)
+            # pos_line = ' {:12.6f} {:12.6f} {:12.6f} '.format(*structure_wd.positions[index_list[i]]/10)
+
+            f.write(pre_lie + pos_line + ' 0.0000  0.0000  0.0000\n')
+
+        uc = structure_wd.cell / 10
+
+        f.write('{} {} {} {} {} {} {} {} {}\n'.format(uc[0, 0], uc[1, 1], uc[2, 2],
+                                                      uc[0, 1], uc[0, 2], uc[1, 0],
+                                                      uc[1, 2], uc[2, 0], uc[2, 1]))
+
+
+def generate_g96(structure_wd, structure_uc, filename):
+    n_at_uc = len(structure_uc.symbols)
+    n_at = len(structure_wd.symbols)
+
+    index_list = []
+    for i in range(n_at):
+        for j in range(n_at_uc):
+            index_list.append(j * n_at // n_at_uc + i)
+            # print(index_list[-1])
+
+
+    with open(filename, 'w') as f:
+        f.write('TITLE\ncell with displacements\nEND\nPOSITION\n')
+
+        for i in range(n_at):
+            iuc = np.mod(i, n_at_uc)
+            # pre_lie = '  {:3}LIG {:>6} {:4}'.format(iuc+1, structure_wd.get_atom_types()[i], i+1)
+            pre_lie = '  {:3} LIG   {:<7} {:4}'.format(i // n_at_uc + 1, structure_uc.get_atom_types()[iuc], i + 1)
+
+            # pos_line = ' {:7.3f} {:7.3f} {:7.3f} '.format(*structure_wd.positions[i]/10)
+            # pos_line = ' {:7.3f} {:7.3f} {:7.3f} '.format(*structure_wd.positions[index_list[i]] / 10)
+            # print(structure_wd.positions[index_list[i]])
+
+            pos_line = ' {:14.9f} {:14.9f} {:14.9f} '.format(*structure_wd.positions[index_list[i]]/10)
+
+            f.write(pre_lie + pos_line + '\n')
+
+        f.write('END\n')
+        f.write('BOX\n')
+
+        uc = structure_wd.cell / 10
+
+        f.write(' {:14.9f} {:14.9f} {:14.9f} {:14.9f} {:14.9f} {:14.9f} {:14.9f} {:14.9f} {:14.9f}\n'.format(
+            uc[0, 0], uc[1, 1], uc[2, 2],
+            uc[0, 1], uc[0, 2], uc[1, 0],
+            uc[1, 2], uc[2, 0], uc[2, 1]))
+
+        f.write('END\n')
+
