@@ -9,11 +9,17 @@ from phonolammps.phonopy_link import obtain_phonon_dispersion_bands, get_phonon
 from phonolammps.iofile import get_structure_from_poscar, generate_VASP_structure
 from phonolammps.iofile import generate_tinker_key_file, generate_tinker_txyz_file, parse_tinker_forces
 from phonolammps.iofile import get_structure_from_lammps, get_structure_from_txyz
+from phonolammps.iofile import get_structure_from_g96, get_structure_from_gro
+from phonolammps.iofile import generate_gro, generate_g96
+
+import shutil, os
+
 
 # define the force unit conversion factors to LAMMPS metal style (eV/Angstrom)
 unit_factors = {'real': 4.336410389526464e-2,
                 'metal': 1.0,
                 'si': 624150636.3094,
+                'gromacs': 0.00103642723,
                 'tinker': 0.043  # kcal/mol to eV
 }
 
@@ -428,7 +434,6 @@ class PhonoTinker(PhonoBase):
 
         import tempfile
         import subprocess
-        import os
         from subprocess import PIPE
 
         temp_file_name = tempfile.gettempdir() + '/tinker_temp' + '_' + str(os.getpid())
@@ -469,8 +474,323 @@ class PhonoTinker(PhonoBase):
         return forces
 
 
+################################
+#           GROMACS            #
+################################
+class PhonoGromacs(PhonoBase):
+
+    _work_dir = 'gromorg_{}/'.format(os.getpid())
+
+    # _work_dir = 'gromorg_test/'
+
+    def __init__(self,
+                 gro_file,
+                 supercell_matrix=np.identity(3),
+                 primitive_matrix=np.identity(3),
+                 displacement_distance=0.01,
+                 show_log=False,
+                 show_progress=False,
+                 use_NAC=False,
+                 symmetrize=True,
+                 gmx_params=None,
+                 base_ff='charmm27.ff/forcefield.itp',
+                 itp_file=None,
+                 silent=True,
+                 omp_num_threads=1):
+
+        """
+        Experimental class to use Tinker to calculate forces, can be used
+        as an example to how to expand phonoLAMMPS to other software
+
+        :param xyz_input_file:  XYZ input file name (see example)
+        :param supercell_matrix:  3x3 matrix supercell
+        :param primitive cell:  3x3 matrix primitive cell
+        :param displacement_distance: displacement distance in Angstroms
+        :param show_log: set true to display lammps log info
+        :param show_progress: set true to display progress of calculation
+        :param use_NAC: set true to use Non-Analytical corrections or not
+        :param symmetrize: set true to use symmetrization of the force constants
+        """
+
+        self._supercell_matrix = supercell_matrix
+        self._primitive_matrix = primitive_matrix
+        self._displacement_distance = displacement_distance
+        self._show_log = show_log
+        self._show_progress = show_progress
+        self._symmetrize = symmetrize
+        self._NAC = use_NAC
+
+        self._force_constants = None
+        self._data_set = None
+        self._silent = silent
+
+        self._base_fcc = base_ff
+
+        self.units = 'gromacs'
+
+        if not self.units in unit_factors.keys():
+            print ('Units style not supported, use: {}'.format(unit_factors.keys()))
+            exit()
+
+        # import openbabel
+
+        # a, b, c = [8.194, 5.968, 8.669]
+        # alpha, beta, gamma = [90.0, 123.57, 90.0]
+
+        # a1 = a
+        # b1 = b * np.cos(np.deg2rad(gamma))
+        # b2 = np.sqrt(b ** 2 - b1 ** 2)
+        # c1 = c * np.cos(np.deg2rad(beta))
+        # c2 = (b * c * np.cos(np.deg2rad(alpha)) - b1 * c1) / b2
+        # c3 = np.sqrt(c ** 2 - c1 ** 2 - c2 ** 2)
+
+        # unitcell = [[a1, 0, 0],
+        #             [b1, b2, 0],
+        #             [c1, c2, c3]]
+
+
+        self._structure = get_structure_from_g96(gro_file)
+
+
+        os.putenv('GMX_MAXBACKUP', '-1')
+        os.putenv('OMP_NUM_THREADS', '{}'.format(omp_num_threads))
+
+        self._filename = 'test'
+
+        # os.mkdir(self._work_dir)
+        try:
+            os.mkdir(self._work_dir)
+        except FileExistsError:
+            pass
+
+        self._filename_dir = self._work_dir + self._filename
+
+        # Default parameters
+
+        # Run paramters
+        if gmx_params is None:
+            gmx_params = {}
+
+        gmx_params.update({'integrator': 'steep',     # Verlet integrator
+                           'nsteps': 1,            # 0.001 * 5000 = 50 ps
+                           'nstxout': 1,  # save coordinates every 0.001 ps
+                           'nstvout': 1,  # save velocities every 0.001 ps
+                           'nstfout': 1,  # save forces every 0.001 ps
+                           'dt': 0.1})
+
+        self._params = gmx_params
+
+
+        self._supercell = np.diag(supercell_matrix)
+        self._box = [v/10 for v in self.cell_lengths(self._structure.cell)]
+        self._angles = self.cell_angles(self._structure.cell)
+        # alpha, beta, gamma = [90.0, 123.57, 90.0]
+
+        from phonolammps.swissparam import SwissParams
+
+        if itp_file is None:
+            sw = SwissParams(self._structure, silent=False)
+
+            files = {'itp': sw.get_itp_data(),
+                     'pdb': sw.get_pdb_data(),
+                     'top': self.get_topology(),
+                     'mdp': self.get_mdp()}
+
+            for ext, data in files.items():
+                with open(self._filename_dir + '.{}'.format(ext), 'w') as f:
+                    f.write(data)
+        else:
+            shutil.copy(itp_file, self._filename_dir + '.itp')
+
+            with open(self._filename_dir + '.top', 'w') as f:
+                f.write(self.get_topology())
+
+            with open(self._filename_dir + '.mdp', 'w') as f:
+                f.write(self.get_mdp())
+
+    def cell_lengths(self, cell):
+        """
+        Get the lengths of cell lattice vectors in angstroms.
+        """
+        import numpy
+
+        return [
+            numpy.linalg.norm(cell[0]),
+            numpy.linalg.norm(cell[1]),
+            numpy.linalg.norm(cell[2]),
+        ]
+
+    def cell_angles(self, cell):
+        """
+        Get the angles between the cell lattice vectors in degrees.
+        """
+        import numpy
+
+        lengths = self.cell_lengths(cell)
+        return [
+            float(numpy.arccos(x) / numpy.pi * 180) for x in [
+                numpy.vdot(cell[1], cell[2]) / lengths[1] / lengths[2],
+                numpy.vdot(cell[0], cell[2]) / lengths[0] / lengths[2],
+                numpy.vdot(cell[0], cell[1]) / lengths[0] / lengths[1],
+            ]
+        ]
+
+    def get_mdp(self):
+        file = ';Autogenerated MDP\n'
+        for keys, values in self._params.items():
+            file += '{:30} = {}\n'.format(keys, values)
+
+        return file
+
+    def get_topology(self):
+
+        num_mol = np.prod(self._supercell)
+        file = '; Autogenerated Topology\n'
+
+        itp_files = [self._base_fcc, '{}.itp'.format(self._filename)]
+
+        params = {'system': ['molecular system name'],
+                  'molecules': ['{} {}\n'.format(self._filename, num_mol)]}
+
+        for itp in itp_files:
+            file += '#include "{}"\n'.format(itp)
+
+        for section, lines in params.items():
+            file += '[ {} ]\n'.format(section)
+            for line in lines:
+                file += '{}\n'.format(line)
+
+        return file
+
+    def get_tpr(self, supercell_wd):
+        import gmxapi as gmx
+
+        #gmx genconf -f molecule.gro -o multi_mol.gro -nbox 2 2 2
+
+            # print(self._filename_dir + '.gro')
+
+        #create_gro(supercell_wd, self._structure, self._filename_dir + '.gro')
+
+        generate_g96(supercell_wd, self._structure, self._filename_dir + '.g96')
+
+
+        grompp = gmx.commandline_operation('gmx', 'grompp',
+                                           input_files={'-f': self._filename_dir + '.mdp',
+                                                        # '-c': self._filename_dir + '.gro',
+                                                        '-c': self._filename_dir + '.g96',
+                                                        '-p': self._filename_dir + '.top',
+                                                        '-po': self._filename_dir + '_log.mdp'},
+                                           output_files={'-o': self._filename_dir + '.tpr'})
+        grompp.run()
+
+        if grompp.output.returncode.result() != 0:
+            print(grompp.output.erroroutput.result())
+
+        tpr_data = gmx.read_tpr(self._filename_dir + '.tpr')
+
+        return tpr_data
+
+    def get_forces(self, cell_with_disp):
+        """
+        Calculate the forces of a supercell using tinker
+        :param cell_with_disp: supercell (PhonopyAtoms) from which determine the forces
+        :return array: numpy array matrix with forces of atoms [Natoms x 3]
+        """
+
+        import gmxapi as gmx
+        from phonolammps.capture import captured_stdout
+
+        supercell_wd = rebuild_connectivity_tinker(self._structure,
+                                                   cell_with_disp,
+                                                   self._supercell_matrix)
+
+        # simulation_input = gmx.modify_input(input=self.get_tpr(supercell_wd), parameters={'nsteps': 1})
+
+        md = gmx.mdrun(input=self.get_tpr(supercell_wd))
+
+        if self._silent:
+            with captured_stdout(self._filename_dir + '.log'):
+                md.run()
+        else:
+            md.run()
+
+
+        trajectory_file = md.output.trajectory.result()
+        md_data_dir = md.output._work_dir.result()
+
+        # print('trajectory file:', trajectory_file)
+        # print('workdir: ', md.output._work_dir.result())
+
+        # reference = get_structure_from_gro(self._filename_dir + '.gro').positions
+        reference = get_structure_from_g96(self._filename_dir + '.g96').positions
+
+        template = get_correct_arrangement(reference, self._structure, self._supercell_matrix)
+        indexing = np.argsort(template)
+
+        # print('{}\n'.format(len(supercell_wd.symbols)))
+        # for s, c in zip(supercell_wd.symbols, supercell_wd.positions):
+        #     print('{:5} '.format(s) + '{:15.5f} {:15.5f} {:15.5f}'.format(*c))
+
+        # import mdtraj
+        # self._trajectory = mdtraj.load_trr(trajectory_file, top=md_data_dir + '/confout.gro')
+        # self._trajectory.save('mdtraj.gro')
+        # exit()
+
+        def extract_forces(trajectory_file, tpr_file, output='forces.xvg', step=0):
+
+            grompp = gmx.commandline_operation('gmx', ['traj', '-of'],
+                                               stdin='0',
+                                               input_files={'-f': trajectory_file,
+                                                            '-s': tpr_file,
+                                                            '-b': '{}'.format(step),
+                                                            '-e': '{}'.format(step),
+                                                            },
+                                               )
+
+            if grompp.output.returncode.result() != 0:
+                print(grompp.output.erroroutput.result())
+
+            forces = np.loadtxt('force.xvg', comments=['#', '@'])[1:].reshape(-1, 3)
+            # print(forces)
+
+            os.remove('force.xvg')
+
+            return forces  # KJ/(mol nm) to eV/ang
+
+        # trajectory = mdtraj.load_trr(trajectory_file, top=md_data_dir + '/confout.gro')
+        # print(trajectory.n_frames)
+        forces = extract_forces(trajectory_file, self._filename_dir + '.tpr', step=1)
+
+        forces = forces[indexing, :] * unit_factors[self.units]
+
+        shutil.rmtree(md.output._work_dir.result())
+
+        return forces
+
+    def __del__(self):
+        if os.path.isdir(self._work_dir):
+            shutil.rmtree(self._work_dir)
+
+
 if __name__ == '__main__':
 
+    params = {'rvdw': 0.28,
+              'rlist': 0.28,
+              'rcoulomb': 0.28}
+
+    phg = PhonoGromacs('unitcell_whole.g96', supercell_matrix=np.identity(3)*3, displacement_distance=0.15,
+                       itp_file='gromorg_test_ref/test.itp', show_progress=True, gmx_params=params)
+
+    phg.write_unitcell_POSCAR()
+    phg.plot_phonon_dispersion_bands()
+    phg.write_force_constants()
+    phonon = phg.get_phonopy_phonon()
+    phonon.run_mesh([40, 40, 40])
+    phonon.run_total_dos()
+    phonon.plot_total_dos().show()
+
+
+    exit()
     structure = get_structure_from_txyz('structure_wrap_min.txyz', 'structure.key')
     print(structure)
     print(structure.get_connectivity())
