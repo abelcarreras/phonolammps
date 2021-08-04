@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from phonopy.structure.atoms import PhonopyAtoms
-from phonolammps.phonopy_link import PhonopyAtomsTinker
+from phonolammps.phonopy_link import PhonopyAtomsConnect
 
 
 def mass_to_symbol(mass, tolerance=5e-1):
@@ -231,11 +231,11 @@ def get_structure_from_txyz(file_name, key_file):
                 [b1, b2, 0],
                 [c1, c2, c3]]
 
-    return PhonopyAtomsTinker(positions=np.array(coordinates, dtype=float),
-                              symbols=atomic_elements,
-                              cell=unitcell,
-                              connectivity=connectivity,
-                              atom_types=atom_types)
+    return PhonopyAtomsConnect(positions=np.array(coordinates, dtype=float),
+                               symbols=atomic_elements,
+                               cell=unitcell,
+                               connectivity=connectivity,
+                               atom_types=atom_types)
 
 
 def generate_tinker_txyz_file(structure):
