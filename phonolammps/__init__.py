@@ -1,4 +1,4 @@
-__version__ = '0.8.0'
+__version__ = '0.8.1'
 
 import numpy as np
 import warnings
@@ -340,6 +340,7 @@ class Phonolammps(PhonoBase):
 
         id = lmp.extract_atom("id", 0)
         id = np.array([id[i]-1 for i in range(na)], dtype=int)
+        # id_inverse = [list(id).index(i) for i in range(len(id))]
 
         xp = lmp.extract_atom("x", 3)
         reference = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)[id, :]
@@ -347,13 +348,15 @@ class Phonolammps(PhonoBase):
         template = get_correct_arrangement(reference, self._structure, self._supercell_matrix)
         indexing = np.argsort(template)
 
+
         coordinates = cell_with_disp.get_positions()
 
         for i in range(na):
-            lmp.command('set atom {} x {} y {} z {}'.format(i + 1,
+            lmp.command('set atom {} x {} y {} z {}'.format(id[id[i]]+1,
                                                             coordinates[template[i], 0],
                                                             coordinates[template[i], 1],
-                                                            coordinates[template[i], 2]))
+                                                            coordinates[template[i], 2])
+                        )
 
         lmp.command('run 0')
 
@@ -367,6 +370,22 @@ class Phonolammps(PhonoBase):
         forces = np.array([[fp[i][0], fp[i][1], fp[i][2]] for i in range(na)], dtype=float)[id, :]
 
         forces = forces[indexing, :] * unit_factors[self.units]
+
+        # elements = ['C', 'H', 'H', 'H', 'C', 'O']
+        # id = lmp.extract_atom("id", 0)
+        # id = np.array([id[i] for i in range(na)], dtype=int)
+
+        # xp = lmp.extract_atom("x", 3)
+        # coordinates = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)
+        # print(coordinates)
+
+        # types = lmp.extract_atom("type", 0)
+        # types = np.array([types[i]-1 for i in range(na)], dtype=int)
+        # symbols = [elements[i] for i in types]
+
+        # print('{}\n'.format(len(symbols)))
+        # for i, s in enumerate(symbols):
+        #     print(s, '{:10.5f} {:10.5f} {:10.5f}'.format(*coordinates[i]) + '  {} {}'.format(id[i], i+1))
 
         lmp.close()
 
