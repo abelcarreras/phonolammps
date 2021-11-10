@@ -127,4 +127,3 @@ if __name__ == '__main__':
                              )
 
     sp = SwissParams(structure)
-
