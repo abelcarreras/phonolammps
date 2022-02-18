@@ -1,4 +1,4 @@
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 
 import numpy as np
 import warnings
@@ -282,7 +282,7 @@ class Phonolammps(PhonoBase):
             # read from commands
             self._lammps_commands_list = lammps_input
 
-        self._structure = get_structure_from_lammps(self._lammps_commands_list)
+        self._structure = get_structure_from_lammps(self._lammps_commands_list, show_log=show_log)
 
         self._supercell_matrix = supercell_matrix
         self._primitive_matrix = primitive_matrix
