@@ -128,11 +128,8 @@ def get_structure_from_lammps(command_list, show_log=False):
                          [0,  yhi-ylo,  yz],
                          [0,   0,  zhi-zlo]]).T
 
-    # positions = lmp.gather_atoms("x", 1, 3)
-    # positions = np.array([positions[i] for i in range(na * 3)]).reshape((na, 3))
-
     type_mass = lmp.extract_atom("mass", 2)
-    type = lmp.gather_atoms("type", 0, 1)
+    type = lmp.extract_atom("type", 0)
 
     masses = np.array([type_mass[type[i]] for i in range(na)], dtype=float)
     symbols = [mass_to_symbol(masses[i]) for i in range(na)]
