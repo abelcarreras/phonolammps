@@ -16,10 +16,10 @@ phonon = Phonopy(unitcell,
                  supercell_matrix)
 
 phonon.set_force_constants(force_constants)
-phonon.set_mesh([20, 20, 20])
+phonon.run_mesh([20, 20, 20])
 
-phonon.set_total_DOS()
-phonon.plot_total_DOS().show()
+phonon.run_total_dos()
+phonon.plot_total_dos()
 
-phonon.set_thermal_properties()
+phonon.run_thermal_properties()
 phonon.plot_thermal_properties().show()
