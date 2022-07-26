@@ -1,4 +1,6 @@
 import os
+import warnings
+
 import numpy as np
 
 from phonopy.structure.atoms import PhonopyAtoms
@@ -12,6 +14,7 @@ def mass_to_symbol(mass, tolerance=5e-1):
         if element[3] is not None and abs(mass - element[3]) < tolerance:
             return element[1]
 
+    warnings.warn('Atomic element with mass {} has not been recognized. Using element H'.format(mass))
     return 'H'  # in case no match found use H as wildcard
 
 
