@@ -7,15 +7,17 @@ from phonopy.structure.atoms import PhonopyAtoms
 from phonolammps.phonopy_link import PhonopyAtomsConnect
 
 
-def mass_to_symbol(mass, tolerance=5e-1):
+def mass_to_symbol(mass):
     from phonopy.structure.atoms import atom_data
 
+    total_diff = []
     for element in atom_data:
-        if element[3] is not None and abs(mass - element[3]) < tolerance:
-            return element[1]
+        if element[3] is not None:
+            total_diff.append(abs(mass - element[3]))
 
-    warnings.warn('Atomic element with mass {} has not been recognized. Using element H'.format(mass))
-    return 'H'  # in case no match found use H as wildcard
+    i_min = np.argmin(total_diff)
+    return atom_data[i_min+1][1]
+
 
 
 def get_structure_from_poscar(file_name, number_of_dimensions=3):
