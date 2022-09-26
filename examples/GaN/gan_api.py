@@ -9,6 +9,7 @@ phlammps = Phonolammps(lammps_inp,
                        supercell_matrix=np.diag([3, 3, 3]),
                        primitive_matrix=np.identity(3))
 
+phlammps.optimize_unitcell(energy_tol=0, force_tol=1e-10)
 phlammps.plot_phonon_dispersion_bands()
 
 force_constants = phlammps.get_force_constants()

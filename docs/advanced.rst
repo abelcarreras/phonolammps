@@ -16,6 +16,18 @@ format (check phonopy documentation for further information). To activate this o
 Notice that this option does not modify the calculated force constants written in **FORCE_CONSTANTS** file.
 It is only used in the phonon band structure plot, therefore it makes no effect without **-p** flag.
 
+Atomic position optimization
+----------------------------
+
+The atomic positions of the unit cell can be optimized using **--optimization** flag.
+This uses LAMMPS minimize to perform a minimization of atomic forces at constant volume.
+The forces tolerance for the convergence criterion is defined by **--force_tol** flag. ::
+
+    $ phonolammps in.lammps --dim 2 2 2 --optimization --force_tol 1e-10 -p
+
+This option performs a simple minimization. If a more sophisticated optimization is required
+then use LAMMPS directly. This option is best used to refine the atomic positions of an already
+optimized unit cell.
 
 Finite temperature force constants
 ----------------------------------

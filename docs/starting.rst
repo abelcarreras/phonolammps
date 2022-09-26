@@ -109,9 +109,9 @@ All options available are displayed by using **-h** ::
 
     $ phonolammps -h
     usage: phonolammps [-h] [-o file] [--dim N N N] [-p] [-c file]
-                       [-pa F F F F F F F F F] [-t F] [--amplitude F]
-                       [--total_time F] [--relaxation_time F] [--timestep F]
-                       [--logshow] [--no_symmetrize] [--use_NAC]
+                       [-pa F F F F F F F F F] [-t F] [--optimize] [--force_tol F]
+                       [--amplitude F] [--total_time F] [--relaxation_time F]
+                       [--timestep F] [--logshow] [--no_symmetrize] [--use_NAC]
                        [--write_force_sets]
                        lammps_file
 
@@ -129,6 +129,8 @@ All options available are displayed by using **-h** ::
       -pa F F F F F F F F F, --primitive_axis F F F F F F F F F
                             primitive axis
       -t F                  temperature in K
+      --optimize            optimize atoms position of unitcell
+      --force_tol F         forces tolerance for optimization
       --amplitude F         displacement distance [default: 0.01 angstrom]
       --total_time F        total MD time in picoseconds [default: 20 ps]
       --relaxation_time F   MD relaxation time in picoseconds [default: 5 ps]
@@ -138,7 +140,7 @@ All options available are displayed by using **-h** ::
       --use_NAC             include non analytical corrections (Requires BORN file
                             in work directory)
       --write_force_sets    write FORCE_SETS file
-
+      --version             print version
 
 A simple example for crystalline silicon using a 2x2x2 supercell would be ::
 

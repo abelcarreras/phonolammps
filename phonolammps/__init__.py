@@ -1,4 +1,4 @@
-__version__ = '0.8.4'
+__version__ = '0.9.0'
 
 import numpy as np
 import warnings
@@ -386,6 +386,51 @@ class Phonolammps(PhonoBase):
         lmp.close()
 
         return forces
+
+    def optimize_unitcell(self, energy_tol=0, force_tol=1e-10, max_iter=1000000, max_eval=1000000):
+        """
+        Optimize atoms position of the unitcell using lammps minimizer.
+        Check https://docs.lammps.org/minimize.html for details
+
+        :param energy_tol: stopping tolerance for energ
+        :param force_tol: stopping tolerance for force (force units)
+        :param max_iter: max iterations of minimizer
+        :param max_eval: max number of force/energy evaluations
+        """
+
+        import lammps
+
+        cmd_list =  ['-log', 'none']
+        if not self._show_log:
+            cmd_list += ['-echo', 'none', '-screen', 'none']
+
+        lmp = lammps.lammps(cmdargs=cmd_list)
+        lmp.commands_list(self._lammps_commands_list)
+
+        lmp.command(' thermo          10 ')
+        lmp.command('thermo_style    custom step temp etotal press vol enthalpy')
+        #lmp.command(' fix             2  all box/relax aniso 1000000 dilate all')
+        lmp.command('minimize {} {} {} {} '.format(energy_tol, force_tol, max_iter, max_eval))
+        #lmp.command('run 0 ')
+
+        na = lmp.get_natoms()
+        xp = lmp.extract_atom("x", 3)
+        positions = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)
+
+        fp = lmp.extract_atom("f", 3)
+        forces = np.array([[fp[i][0], fp[i][1], fp[i][2]] for i in range(na)], dtype=float)
+
+        lmp.close()
+
+        self._structure.set_positions(positions)
+
+        norm = np.linalg.norm(forces.flatten())
+        maxforce = np.max(np.abs(forces))
+
+        print('Force two-norm: ', norm)
+        print('Force max component: ', maxforce)
+
+        return norm, maxforce
 
 
 ################################

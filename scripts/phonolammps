@@ -53,6 +53,12 @@ parser.add_argument('-pa', '--primitive_axis', metavar='F', type=float, nargs=9,
 parser.add_argument('-t', metavar='F', type=float, default=None,
                     help='temperature in K')
 
+parser.add_argument('--optimize', action='store_true',
+                    help='optimize atoms position of unitcell ')
+
+parser.add_argument('--force_tol', metavar='F', type=float, default=1e-10,
+                    help='forces tolerance for optimization')
+
 parser.add_argument('--amplitude', metavar='F', type=float, default=0.01,
                     help='displacement distance [default: 0.01 angstrom]')
 
@@ -117,6 +123,8 @@ phlammps = Phonolammps(args.lammps_input_file,
                        symmetrize=not(args.no_symmetrize))
 
 
+if args.optimize:
+    phlammps.optimize_unitcell(force_tol=args.force_tol)
 
 # If temperature is set then do dynaphopy calculation
 if args.t is not None:
