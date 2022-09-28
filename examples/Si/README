@@ -6,3 +6,6 @@ Run this example as follows to generate the force constants and show band struct
 
 # phonolammps in.lammps --dim 2 2 2 -pa 0.0 0.5 0.5 0.5 0.0 0.5 0.5 0.5 0.0 -c POSCAR_unitcell -p
 
+To perform a preliminary optimization of the atoms position in the unit cell (constant volume):
+
+# phonolammps in.lammps --dim 2 2 2 -pa 0.0 0.5 0.5 0.5 0.0 0.5 0.5 0.5 0.0 --optimize -c POSCAR_unitcell -p
