@@ -108,11 +108,12 @@ class PhonoBase:
         else:
             return self._force_constants
 
-    def plot_phonon_dispersion_bands(self):
+    def plot_phonon_dispersion_bands(self, bands_and_labels=None):
         """
         Plot phonon band structure using seekpath automatic k-path
         Warning: The labels may be wrong if the structure is not standarized
 
+        :param bands_and_labels: Custom energy band path
         """
         import matplotlib.pyplot as plt
 
@@ -125,7 +126,8 @@ class PhonoBase:
             return text_string
 
         force_constants = self.get_force_constants()
-        bands_and_labels = self.get_path_using_seek_path()
+        if bands_and_labels is None:
+            bands_and_labels = self.get_path_using_seek_path()
 
         _bands = obtain_phonon_dispersion_bands(self._structure,
                                                 bands_and_labels['ranges'],
@@ -309,8 +311,8 @@ class Phonolammps(PhonoBase):
         :return units: string containing the units
         """
         for line in commands_list:
-                if line.startswith('units'):
-                    return line.split()[1]
+            if line.startswith('units'):
+                return line.split()[1]
         return 'lj'
 
     def get_forces(self, cell_with_disp):
@@ -727,7 +729,7 @@ class PhonoGromacs(PhonoBase):
 
         #gmx genconf -f molecule.gro -o multi_mol.gro -nbox 2 2 2
 
-            # print(self._filename_dir + '.gro')
+        # print(self._filename_dir + '.gro')
 
         #create_gro(supercell_wd, self._structure, self._filename_dir + '.gro')
 
