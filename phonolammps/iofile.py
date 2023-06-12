@@ -142,6 +142,14 @@ def get_structure_from_lammps(command_list, show_log=False):
     xp = lmp.extract_atom("x", 3)
     positions = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)
 
+    # set order of ID's
+    id = lmp.extract_atom("id", 0)
+    id = np.array([id[i] - 1 for i in range(na)], dtype=int)
+
+    positions = positions[id.argsort()]
+    symbols = [symbols[i] for i in id.argsort()]
+    masses = masses[id.argsort()]
+
     return PhonopyAtoms(positions=positions,
                         masses=masses,
                         symbols=symbols,
