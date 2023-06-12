@@ -41,7 +41,7 @@ dp_structure = Structure(cell=structure.get_cell(),  # cell_matrix, lattice vect
 trajectory = generate_lammps_trajectory(dp_structure, 'in.lammps',
                                         total_time=200,      # ps
                                         time_step=0.001,    # ps
-                                        relaxation_time=50,  # ps
+                                        relaxation_time=5,  # ps
                                         silent=False,
                                         supercell=[3, 3, 3],
                                         memmap=False,
