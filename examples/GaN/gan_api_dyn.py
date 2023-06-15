@@ -39,7 +39,7 @@ dp_structure = Structure(cell=structure.get_cell(),  # cell_matrix, lattice vect
 
 # calculate trajectory for dynaphopy with lammps
 trajectory = generate_lammps_trajectory(dp_structure, 'in.lammps',
-                                        total_time=200,      # ps
+                                        total_time=10,      # ps
                                         time_step=0.001,    # ps
                                         relaxation_time=5,  # ps
                                         silent=False,
