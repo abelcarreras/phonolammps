@@ -2,17 +2,17 @@
   "description": "<p>In recent years Phonopy[1] has become a very well known software in &nbsp;the materials science field for calculating phonon properties of crystals. While Phonopy provides interfaces for many popular first principles calculations software such as VASP[2], WIEN2K[3], SIESTA[4], etc., the implementation of interfaces for empirical potentials software is usually more challenging. This fact is due to the large variability of input structure definitions that these kind of software require in comparison to first principles.</p>\n\n<p>phonoLAMMPS is an open source python software designed to compute the phonon harmonic force constants interfacing LAMMPS[5] and phonopy. Additionaly, phonoLAMMPS also interfaces with dynaphopy[6] to compute the renormalized force constants at finite temperature from LAMMPS &nbsp;molecular dynamics simulations.&nbsp;</p>\n\n<p>This software can be used either as a python module with a similar Phonopy-like&nbsp;<br>\ninterface or as a simple commandline script.</p>\n\n<p><strong>Main features</strong><br>\n- Command line interface (phonopy like style)<br>\n- Python API fully compatible with phonopy<br>\n- Use of official LAMMPS python interface<br>\n- Simple and easy to use<br>\n- Finite temperature force constants using DynaPhoPy</p>\n\n<p>[1] A. Togo and I. Tanaka, Scr. Mater., 108, 1-5 (2015)<br>\n[2] G. Kresse and J. Hafner, Phys. Rev. B 47, 558 (1993); ibid. 49, 14 251 (1994).<br>\n[3] P. Blaha, K.Schwarz, F. Tran, R. Laskowski, G.K.H. Madsen and L.D. Marks, J. Chem. Phys. 152, 074101 (2020)<br>\n[4] J.M. Soler, &nbsp;E. Artacho, J.D. Gale, A. Garcia, J. Junquera, P. Ordej&oacute;n and D. S&aacute;nchez-Portal, J. Phys. Condens. Matter 14 2745 (2002)<br>\n[5] S. Plimpton, J Comp Phys, 117, 1-19 (1995)<br>\n[6] A. Carreras, A. Togo, I. Tanaka, Comput. Phys. Commun. 221:221&ndash;34 (2017)</p>",
   "license": {
       "id": "MIT"
-    },
-  "creator": [
+   },
+   "title": "phonoLAMMPS: A python interface for LAMMPS phonon calculations using phonopy",
+   "keywords": [
+     "LAMMPS, phonon, phonopy, python"
+  ],
+  "creators": [
     {
-      "affiliation": "Donostia International Physics Center (DIPC)",
-      "orcid": "https://orcid.org/0000-0001-5529-2440",
+      "orcid": "0000-0001-5529-2440",
+      "affiliation": "Multiverse Computing",
       "name": "Abel Carreras"
     }
   ],
-  "keywords": [
-    "LAMMPS", "phonon", "phonopy", "python"
-  ],
-  "title": "phonoLAMMPS: A python interface for LAMMPS phonon calculations using phonopy",
   "access_right": "open"
 }
