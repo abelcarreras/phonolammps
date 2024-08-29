@@ -14,9 +14,11 @@ def mass_to_symbol(mass):
     for element in atom_data:
         if element[3] is not None:
             total_diff.append(abs(mass - element[3]))
+        else:
+            total_diff.append(np.inf)
 
     i_min = np.argmin(total_diff)
-    return atom_data[i_min+1][1]
+    return atom_data[i_min][1]
 
 
 
