@@ -10,15 +10,18 @@ name: Upload Python Package
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
 
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.x'
     - name: Install dependencies
