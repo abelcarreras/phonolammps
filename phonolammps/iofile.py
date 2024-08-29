@@ -3,12 +3,11 @@ import warnings
 
 import numpy as np
 
-from phonopy.structure.atoms import PhonopyAtoms
+from phonopy.structure.atoms import PhonopyAtoms, atom_data
 from phonolammps.phonopy_link import PhonopyAtomsConnect
 
 
 def mass_to_symbol(mass):
-    from phonopy.structure.atoms import atom_data
 
     total_diff = []
     for element in atom_data:
@@ -497,3 +496,16 @@ def generate_g96(structure_wd, structure_uc, filename):
 
         f.write('END\n')
 
+
+if __name__ == '__main__':
+
+    masses = []
+    elements = []
+    for element in atom_data:
+        if element[3] is not None:
+            masses.append(element[3])
+            elements.append(element[1])
+
+    for mass, ref in zip(masses, elements):
+        symbol = mass_to_symbol(mass)
+        print(symbol, symbol == ref)
