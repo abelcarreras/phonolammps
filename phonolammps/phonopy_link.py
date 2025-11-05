@@ -34,6 +34,11 @@ class PhonopyAtomsConnect(PhonopyAtoms):
     def get_chemical_symbols(self):
         return self.symbols
 
+    def set_positions(self, positions):
+        if hasattr(super(PhonopyAtoms, self), "set_positions"):
+            super(PhonopyAtoms, self).set_positions(positions)
+        else:
+            self.positions = positions
 
 
 class ForceConstants:
