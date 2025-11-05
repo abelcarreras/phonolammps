@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 
-from phonopy.structure.atoms import PhonopyAtoms, atom_data
+from phonopy.structure.atoms import atom_data
 from phonolammps.phonopy_link import PhonopyAtomsConnect
 
 
@@ -79,9 +79,9 @@ def get_structure_from_poscar(file_name, number_of_dimensions=3):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
 
-    return PhonopyAtoms(symbols=atomic_types,
-                        scaled_positions=scaled_positions,
-                        cell=direct_cell)
+    return PhonopyAtomsConnect(symbols=atomic_types,
+                               scaled_positions=scaled_positions,
+                               cell=direct_cell)
 
 
 def get_structure_from_lammps(command_list, show_log=False):
@@ -151,10 +151,10 @@ def get_structure_from_lammps(command_list, show_log=False):
     symbols = [symbols[i] for i in id.argsort()]
     masses = masses[id.argsort()]
 
-    return PhonopyAtoms(positions=positions,
-                        masses=masses,
-                        symbols=symbols,
-                        cell=unitcell)
+    return PhonopyAtomsConnect(positions=positions,
+                               masses=masses,
+                               symbols=symbols,
+                               cell=unitcell)
 
 def generate_VASP_structure(structure, scaled=True, supercell=(1, 1, 1)):
 

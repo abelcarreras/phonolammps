@@ -5,6 +5,7 @@ import numpy as np
 
 
 # Subclassing PhonopyAtoms to include connectivity & atom types (for tinker & gromacs)
+# and legacy support for ald versions of phonopy
 class PhonopyAtomsConnect(PhonopyAtoms):
     def __init__(self, **kwargs):
         # Extract connectivity & atom types
@@ -20,6 +21,19 @@ class PhonopyAtomsConnect(PhonopyAtoms):
 
     def get_atom_types(self):
         return self._atom_types
+
+    def get_cell(self):
+        return self.cell
+
+    def get_number_of_atoms(self):
+        return len(self.numbers)
+
+    def get_scaled_positions(self):
+        return self.scaled_positions
+
+    def get_chemical_symbols(self):
+        return self.symbols
+
 
 
 class ForceConstants:
@@ -54,6 +68,39 @@ class ForceConstants:
         return self._supercell
 
 
+class PhonopyLegacy(Phonopy):
+    """
+    subclass of Phonopy main class to support multiple versions of phonopy
+    """
+
+    def set_force_constants(self, force_constants):
+        self.force_constants = force_constants
+
+    def set_displacement_dataset(self, dataset):
+        self.dataset = dataset
+
+    def get_primitive(self):
+        return self.primitive
+
+    def get_cell(self):
+        return self.unitcell
+
+    def get_supercell(self):
+        return self.supercell
+
+    def get_displacement_dataset(self):
+        return self.dataset
+
+    def get_supercells_with_displacements(self):
+        return self.supercells_with_displacements
+
+    def set_nac_params(self, nac_params):
+        self.nac_params = nac_params
+
+    def get_force_constants(self):
+        return self.force_constants
+
+
 def get_phonon(structure,
                NAC=False,
                setup_forces=True,
@@ -72,9 +119,10 @@ def get_phonon(structure,
     :return: phonopy phonon object
     """
 
-    phonon = Phonopy(structure, super_cell_phonon,
-                     primitive_matrix=primitive_matrix,
-                     symprec=1e-5, is_symmetry=symmetrize)
+    phonon = PhonopyLegacy(structure, super_cell_phonon,
+                           primitive_matrix=primitive_matrix,
+                           symprec=1e-5, is_symmetry=symmetrize)
+
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
 
@@ -151,13 +199,3 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants, sup
 def get_primitive_structure(structure, primitive_matrix=np.eye(3)):
     from phonopy.structure.cells import get_primitive
     return get_primitive(structure, primitive_matrix)
-
-
-def standarize_structure(structure):
-    from phonopy.structure.spglib import standardize_cell
-
-    lattice, positions, numbers = standardize_cell(structure, to_primitive=False, no_idealize=False, symprec=1e-5)
-
-    return PhonopyAtoms(positions=positions,
-                        numbers=numbers,
-                        cell=lattice)

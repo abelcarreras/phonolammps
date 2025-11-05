@@ -1,4 +1,4 @@
-__version__ = '0.9.3'
+__version__ = '0.10.0'
 
 import numpy as np
 import warnings
@@ -333,7 +333,7 @@ class Phonolammps(PhonoBase):
 
         lmp = lammps.lammps(cmdargs=cmd_list)
         lmp.commands_list(self._lammps_commands_list)
-        lmp.command('replicate {} {} {}'.format(*supercell_sizes))
+        lmp.command('replicate {} {} {} bond/periodic'.format(*supercell_sizes))
         lmp.command('run 0')
 
         na = lmp.get_natoms()
@@ -348,7 +348,7 @@ class Phonolammps(PhonoBase):
 
         template = get_correct_arrangement(reference, self._structure, self._supercell_matrix)
 
-        coordinates = cell_with_disp.get_positions()
+        coordinates = cell_with_disp.positions
 
         for i in range(na):
             lmp.command('set atom {} x {} y {} z {}'.format(id[i]+1,
